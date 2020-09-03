@@ -14,11 +14,12 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 
 ENDPOINT_URL = "https://query.wikidata.org/sparql"
 QUERY = """
-SELECT ?child
+SELECT ?child ?childLabel
 WHERE
 {
 # ?child  father   Bach
   ?child wdt:P22 wd:Q1339.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 }
 """
 CONTACT = {
@@ -73,18 +74,19 @@ def main():
     # }
 
     # list of records, where each record is a dictionary
-    data = parsed["results"]["bindings"]
+    data = parsed["results"]["bindings"] 
+    # columns from the SELECT part of the query
+    cols = parsed["head"]["vars"]  
+
     # full dataframe with key.value column names for all nested dictionaries per record
     df = pd.json_normalize(data)
-
-    cols = parsed["head"]["vars"]  # columns from the SELECT part of the query
     # subset full dataframe for only the 'value' columns
     df = df[[f"{c}.value" for c in cols]]
-    df.columns = cols  # remove the '.value' part
+    # remove the '.value' part
+    df.columns = cols  
 
     print(df)  # view the results!
 
 
 if __name__ == "__main__":
-
     main()
