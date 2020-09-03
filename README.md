@@ -1,95 +1,87 @@
-# CS7450-F20-Project
-Group project for CS 7450 Information Visualization, Fall 2020
+# TexCompare
 
----
+[Include logo/demo screenshot etc.]
 
-## Project Title
+## About
 
-A little info about your project and/ or overview that explains what the  
-project is about.
-
-## Motivation
-
-A short description of the motivation behind the creation and maintenance of  
-the project. This should explain why the project exists.
-
-## Build
-
-Build status of continus integration i.e. travis, appveyor etc.
-
-## Code style
-
-If you're using any code style like xo, standard etc. That will help others  
-while contributing to your project.
-
-## Screenshots
-
-Include logo/demo screenshot etc.
-
-## Tech/framework used
-
-Self-explanatory.
-
-## Features
-
-What makes your project stand out?
-
-## Code Example
-
-Show what the library does as concisely as possible, developers should be able  
-to figure out how your project solves their problem by looking at the code  
-example. Make sure the API you are showing off is obvious, and that your code  
-is short and concise.
+Explain the project.
 
 ## Installation
 
-Provide step by step series of examples and explanations about how to get a  
-development env running.
+Step-by-step of what is needed to run the project.
 
-## API Reference
+## How to Use
 
-Depending on the size of the project, if it is small and simple enough the  
-reference docs can be added to the README. For medium size to larger projects
-it is important to at least provide a link to where the API reference docs live.
+Show examples of running the project!
 
-## Tests
+## Contributing
 
-Describe and show how to run the tests with code examples.
+Step-by-step of how to set up a dev env.
 
-## How to use
+## Framework
 
-If people like your project they’ll want to learn how they can use it. To do so
-include step by step guide to use your project.
+### Front-end Application
 
-## Contribute
+- ...
 
-Let people know how they can contribute into your project. A contributing
-guideline will be a big plus.
+### Back-end Server
 
-## Credits
+- [Python3.8](https://www.python.org/downloads/release/python-380/)
 
-Give proper credits. This could be a link to any repo which inspired you to
-build this project, any blogposts or links to people who contrbuted in this
-project.
+## Packages
+
+### Python3.8
+
+Installation using [`pip`](https://pip.pypa.io/en/stable/) package installer:
+
+- Windows: `py -3.8 -m pip install <package>`
+- MacOS/Linux: `python3.8 -m pip install <package>`
+
+| Package         | Version | Homepage                                  | Docs                                                              |
+| --------------- | ------- | ----------------------------------------- | ----------------------------------------------------------------- |
+| `sparqlwrapper` | `1.8.5` | [Link](https://rdflib.dev/sparqlwrapper/) | [Link](https://sparqlwrapper.readthedocs.io/en/stable/index.html) |
+| `pandas`        | `1.1.1` | [Link](https://pandas.pydata.org/)        | [Link](https://pandas.pydata.org/docs/reference/index.html)       |
+
+## Code style
+
+We rely mainly on Google Style Guides to inform our development best practices:
+
+- [Google Style Guide](https://google.github.io/styleguide/pyguide.html)
+- [PyLint](https://pypi.org/project/pylint/)
+
+## Acknowledgement
+
+### Designed for
+
+> Georgia Institute of Technology  
+> CS 7450 Information Visualization  
+> Fall 2020  
+> Professor [Alex Endert](https://va.gatech.edu/endert/)  
+> [Course Homepage](http://va.gatech.edu/courses/cs7450/)
+
+### Group Members
+
+- [Adam Coscia](mailto:acoscia6@gatech.edu) ([Personal Site](https://adamcoscia.github.io))
+- [Rojin Aliehyaei](mailto:rojin@gatech.edu)
+- [Akshay Karthik](mailto:akarthik3@gatech.edu)
+- [Vijay Marupudi](mailto:vijaymarupudi@gatech.edu)
 
 ## License Information
 
-Licensed under the Apache License, Version 2.0
+> Licensed under the Apache License, Version 2.0 ([Link](http://www.apache.org/licenses/LICENSE-2.0))
 
-"""
+- Include the following in any and all files in this project:
 
-Copyright [yyyy] [name of copyright owner]
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-> http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-"""
+> Copyright [yyyy] [name of copyright owner]
+>
+> Licensed under the Apache License, Version 2.0 (the "License");
+> you may not use this file except in compliance with the License.
+> You may obtain a copy of the License at
+>
+> <http://www.apache.org/licenses/LICENSE-2.0>
+>
+> Unless required by applicable law or agreed to in writing, software
+> distributed under the License is distributed on an "AS IS" BASIS,
+> WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+> See the License for the specific language governing permissions and
+> limitations under the License.
