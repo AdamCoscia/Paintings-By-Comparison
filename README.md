@@ -1,4 +1,4 @@
-# TexCompare
+# LearningByComparison
 
 [Include logo/demo screenshot etc.]
 
@@ -8,46 +8,32 @@ Explain the project.
 
 ## Installation
 
-Step-by-step of what is needed to run the project.
+_Relax, it won't take that much time :)_
+
+### Notes
+
+- **We do not guarantee that this system will work outside of the versions listed below.**
+- If you need to run different versions of Node.js in your local environment, consider installing [Node Version Manager (nvm)](https://github.com/creationix/nvm) or [Node Version Manager (nvm) for Windows](https://github.com/coreybutler/nvm-windows).
+- We recommend using [`pip`](https://pip.pypa.io/en/stable/) package installer for Python packages:
+  - Windows: `py -3.8 -m pip install <package>`
+  - MacOS/Linux: `python3.8 -m pip install <package>`
+
+### Steps
+
+1. Install [Node.js v12.18.4 LTS](https://nodejs.org/en/) and [npm v6.14.6](https://docs.npmjs.com/cli/npm)
+   - You can download a Node.js installer for your operating system from <https://nodejs.org/en/download/>
+   - By installing Node.js, you also get npm, which is a command line executable for downloading and managing Node.js packages.
+     - Check the version of Node.js and npm that you have installed by running `node -v` and `npm -v` from the command line/terminal
+   - Be careful of conflicting with existing installations of Node.js on your machine!
+2. Install [Python 3.8](https://www.python.org/)
+   - You can download a Python installer for your operating system from <https://www.python.org/downloads/release/python-380/>
+3. Install [React](https://reactjs.org/)
+4. Open your command line/terminal and navigate to _APP_ROOT_ using `cd <APP_ROOT>`
+5. ...
 
 ## How to Use
 
 Show examples of running the project!
-
-## Contributing
-
-Step-by-step of how to set up a dev env.
-
-## Framework
-
-### Front-end Application
-
-- ...
-
-### Back-end Server
-
-- [Python3.8](https://www.python.org/downloads/release/python-380/)
-
-## Packages
-
-### Python3.8
-
-Installation using [`pip`](https://pip.pypa.io/en/stable/) package installer:
-
-- Windows: `py -3.8 -m pip install <package>`
-- MacOS/Linux: `python3.8 -m pip install <package>`
-
-| Package         | Version | Homepage                                  | Docs                                                              |
-| --------------- | ------- | ----------------------------------------- | ----------------------------------------------------------------- |
-| `sparqlwrapper` | `1.8.5` | [Link](https://rdflib.dev/sparqlwrapper/) | [Link](https://sparqlwrapper.readthedocs.io/en/stable/index.html) |
-| `pandas`        | `1.1.1` | [Link](https://pandas.pydata.org/)        | [Link](https://pandas.pydata.org/docs/reference/index.html)       |
-
-## Code style
-
-We rely mainly on Google Style Guides to inform our development best practices:
-
-- [Google Style Guide](https://google.github.io/styleguide/pyguide.html)
-- [PyLint](https://pypi.org/project/pylint/)
 
 ## Acknowledgement
 
@@ -59,7 +45,7 @@ We rely mainly on Google Style Guides to inform our development best practices:
 > Professor [Alex Endert](https://va.gatech.edu/endert/)  
 > [Course Homepage](http://va.gatech.edu/courses/cs7450/)
 
-### Group Members
+### Investigators
 
 - [Adam Coscia](mailto:acoscia6@gatech.edu) ([Personal Site](https://adamcoscia.github.io))
 - [Rojin Aliehyaei](mailto:rojin@gatech.edu)
@@ -69,19 +55,3 @@ We rely mainly on Google Style Guides to inform our development best practices:
 ## License Information
 
 > Licensed under the Apache License, Version 2.0 ([Link](http://www.apache.org/licenses/LICENSE-2.0))
-
-- Include the following in any and all files in this project:
-
-> Copyright [yyyy] [name of copyright owner]
->
-> Licensed under the Apache License, Version 2.0 (the "License");
-> you may not use this file except in compliance with the License.
-> You may obtain a copy of the License at
->
-> <http://www.apache.org/licenses/LICENSE-2.0>
->
-> Unless required by applicable law or agreed to in writing, software
-> distributed under the License is distributed on an "AS IS" BASIS,
-> WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-> See the License for the specific language governing permissions and
-> limitations under the License.
