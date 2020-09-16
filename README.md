@@ -14,6 +14,8 @@ Show examples of running the project!
 
 _Relax, it won't take that much time to install :)_
 
+First, clone this repo to your local machine, then move ahead.
+
 ### 0. Important Notes
 
 - **We do not guarantee that this system will work outside of the versions listed below.**
@@ -28,7 +30,7 @@ _Relax, it won't take that much time to install :)_
    - By installing Node.js, you also get npm, which is a command line executable for downloading and managing Node.js packages.
      - Check the version of Node.js and npm that you have installed by running `node -v` and `npm -v` from the command line/terminal
    - Be careful of conflicting with existing installations of Node.js on your machine!
-2. Open your command line/terminal and navigate to _app/_
+2. Open your command line/terminal and navigate to the _app/_ directory of this repo
 3. Either run:
    - `npm ci` **(Preferred, ensure that the package-lock.json is not modified from when you cloned the repository)**
      - installs required libraries from _package-lock.json_
@@ -37,12 +39,13 @@ _Relax, it won't take that much time to install :)_
 4. Run `npm start` in the same directory:
    - This should spin up a webpage automatically at <http://localhost:3000/>
    - If you see a landing page for the project, then congrats! You're ready to start working on the app!
+5. When you want to close the app, hit `COMMAND/CTRL+C` and type `Y`
 
 ### 2. Install Python, venv and packages
 
 1. Install [Python 3.8](https://www.python.org/)
    - You can download a Python installer for your operating system from <https://www.python.org/downloads/release/python-380/>
-2. Open your command line/terminal (if not open from installing Node.js) and navigate to _server/_
+2. Open your command line/terminal (if not open from installing Node.js) and navigate to the _server/_ directory of this repo
 3. Run the following commands based on which operating system you use:
 
 ---
@@ -69,9 +72,10 @@ _Relax, it won't take that much time to install :)_
 
 ---
 
-1. Navigate to _server/src/_
-2. Run `python example.py`
+4. Navigate to _server/src/_
+5. Run `python example.py`
    - If a list of Bach's children comes up, then congrats! You're ready to start working on the server!
+6. When you want to exit the virtual environment, run `deactivate` from the command line/terminal
 
 ## Acknowledgement
 
