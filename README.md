@@ -1,4 +1,4 @@
-# Learning By Comparison
+# Paintings by Comparison
 
 [Include logo/demo screenshot etc.]
 
@@ -79,28 +79,22 @@ First, clone this repo to your local machine, then move ahead.
 
 ## Acknowledgement
 
-We would like to thank the following people for helping us along the way
+```
+Georgia Institute of Technology
+CS 7450 Information Visualization
+Fall 2020
+```
 
-- ...
-
-and the following organizations for providing funding
-
-- ...
-
-### Designed for
-
-> Georgia Institute of Technology  
-> CS 7450 Information Visualization  
-> Fall 2020  
-> Professor [Alex Endert](https://va.gatech.edu/endert/)  
-> [Course Homepage](http://va.gatech.edu/courses/cs7450/)
-
-### Investigators
+Developed by:
 
 - [Adam Coscia](mailto:acoscia6@gatech.edu) ([Personal Site](https://adamcoscia.github.io))
+- [Vijay Marupudi](mailto:vijaymarupudi@gatech.edu)
+
+Thank you to these contributors!
+
 - [Rojin Aliehyaei](mailto:rojin@gatech.edu)
 - [Akshay Karthik](mailto:akarthik3@gatech.edu)
-- [Vijay Marupudi](mailto:vijaymarupudi@gatech.edu)
+
 
 ## License Information
 
