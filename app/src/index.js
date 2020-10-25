@@ -7,7 +7,7 @@ async function main() {
   let data = await d3.csv("src/data-to-visualize.csv");
   data.forEach(d => {
     d.year = parseInt(d.year);
-    d.depicts = d.depicts.split(";").map((x) => x.trim())
+    d.depicts = d.depicts.split(";").map(x => x.trim());
   });
   d3.select("body").attr("style", "margin: 0px;");
 
@@ -20,15 +20,12 @@ async function main() {
   const mapView = new MapView(svg, data);
   const timeView = new TimeView(svg, data);
 
-
   const views = {
-    "map": mapView,
-    "time": timeView
-  }
-
+    map: mapView,
+    time: timeView
+  };
 
   const filterState = {};
-
 
   function filterButKey(key) {
     let newData = data;
@@ -39,13 +36,12 @@ async function main() {
       }
     }
 
-    return newData
+    return newData;
   }
 
   function refresh() {
-
     for (const key of Object.keys(views)) {
-      views[key].update(filterButKey(key))
+      views[key].update(filterButKey(key));
     }
   }
 
@@ -60,21 +56,26 @@ async function main() {
   mapView.initialize(data, makeUpdater("map"));
   timeView.initialize(data, makeUpdater("time"));
 
-
-  const words = {}
+  const words = {};
 
   data.forEach(d => {
     d.depicts.forEach(word => {
       if (words[word]) {
-        words[word] += 1
+        words[word] += 1;
       } else {
-        words[word] = 1
+        words[word] = 1;
       }
-    })
-  })
+    });
+  });
 
-  console.log(Array.from(Object.values(words)))
-
+  console.log(
+    d3
+      .stratify()
+      .id(d => d.word)
+      .parentId(() => "root")(
+      Object.entries(words).map(([word, val]) => ({ word, val }))
+    )
+  );
 }
 
 main();
