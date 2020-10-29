@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "./constants";
 import { MapView } from "./map-view";
 import { TimeView } from "./time-view";
+import { DepictsView } from "./depicts-view";
 
 async function main() {
   let data = await d3.csv("src/data-to-visualize.csv");
@@ -19,10 +20,12 @@ async function main() {
 
   const mapView = new MapView(svg, data);
   const timeView = new TimeView(svg, data);
+  const depictsView = new DepictsView(svg, data);
 
   const views = {
     map: mapView,
-    time: timeView
+    time: timeView,
+    depicts: depictsView
   };
 
   const filterState = {};
@@ -55,27 +58,8 @@ async function main() {
 
   mapView.initialize(data, makeUpdater("map"));
   timeView.initialize(data, makeUpdater("time"));
+  depictsView.initialize(data, makeUpdater("depicts"));
 
-  const words = {};
-
-  data.forEach(d => {
-    d.depicts.forEach(word => {
-      if (words[word]) {
-        words[word] += 1;
-      } else {
-        words[word] = 1;
-      }
-    });
-  });
-
-  console.log(
-    d3
-      .stratify()
-      .id(d => d.word)
-      .parentId(() => "root")(
-      Object.entries(words).map(([word, val]) => ({ word, val }))
-    )
-  );
 }
 
 main();
