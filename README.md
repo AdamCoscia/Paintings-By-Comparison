@@ -28,7 +28,7 @@ First, clone this repo to your local machine, then move ahead.
    - You can download a Node.js installer for your operating system from <https://nodejs.org/en/download/>
    - By installing Node.js, you also get npm, which is a command line executable for downloading and managing Node.js packages.
      - Check the version of Node.js and npm that you have installed by running `node -v` and `npm -v` from the command line/terminal
-   - Be careful of conflicting with existing installations of Node.js on your machine! See [Important Notes](<README.md#Important Notes>) above.
+   - Be careful of conflicting with existing installations of Node.js on your machine! See [Important Notes](<README.md#important-notes>) above.
 2. Open your command line/terminal and navigate to the _app/_ directory of this repo
 3. Either run:
    - `npm ci` **(Preferred, ensure that the package-lock.json is not modified from when you cloned the repository)**
