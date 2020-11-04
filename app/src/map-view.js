@@ -1,7 +1,10 @@
-import europeJson from "./europe.json";
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "./constants";
+import europeJson from "./europe.json";
 
+/**
+ * Number of paintings by country
+ */
 function groupByCountry(data) {
   const ret = {};
   for (const row of data) {
@@ -14,41 +17,65 @@ function groupByCountry(data) {
   return ret;
 }
 
+/**
+ * MapView object
+ */
 export class MapView {
+  /**
+   * Takes in SVG object and data object
+   */
   constructor(svg, allData) {
     this.allData = allData;
-    this.mapG = svg.append("g").classed("map", true);
+    this.viewWidth = WIDTH / 4;
+    this.viewHeight = HEIGHT / 3;
 
+    // Create the map group and tooltip divs
+    this.mapG = svg.append("g").classed("map", true);
+    this.mapTooltip = d3.select("body").append("div");
+
+    // Set the clipping region
+    this.mapG
+      .append("clipPath")
+      .attr("id", "rect-clip")
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", this.viewWidth)
+      .attr("height", this.viewHeight);
+
+    // Give the clipping region a border
     this.mapG
       .append("rect")
       .attr("x", 0)
       .attr("y", 0)
-      .attr("width", WIDTH / 3)
-      .attr("height", HEIGHT / 3)
+      .attr("width", this.viewWidth)
+      .attr("height", this.viewHeight)
       .attr("fill", "none")
-      .attr("stroke", "black");
+      .attr("stroke", "black")
 
+    // Create a color scale from the countries
     const grouped = groupByCountry(allData);
     this.colorScale = d3
       .scaleSequential(d3.interpolateBlues)
-      .domain(d3.extent(Object.entries(grouped), x => x[1]))
+      .domain(d3.extent(Object.entries(grouped), (x) => x[1]))
       .range([d3.interpolateBlues(0.3), d3.interpolateBlues(1)]);
-    this.mapTooltip = d3.select("body").append("div");
+
+    // Create the map projection
     const projection = d3
       .geoMercator()
-      .center([2.6, 46])
-      .translate([WIDTH / 6, HEIGHT / 5])
-      .scale(300)
-      .clipExtent([[0, 0], [WIDTH / 3, HEIGHT / 3]]);
-    // .fitExtent([[0, 0], [200,]])
-
+      .center([2.6, 46]) // [LAT, LON]
+      .scale(0.1 * WIDTH + 90) // zoom in/out, default 150
+      .translate([0.1 * WIDTH, 0.24 * HEIGHT]); // translate center to [x, y]
     this.pathGenerator = d3.geoPath(projection);
   }
 
+  /**
+   * Takes in data and filter function
+   */
   initialize(data, onCountry) {
-    this.grouped = groupByCountry(data);
-
     const self = this;
+
+    this.grouped = groupByCountry(data);
 
     this.pathSelection = this.mapG
       .selectAll(".countryPath")
@@ -58,10 +85,11 @@ export class MapView {
       .append("path");
 
     this.pathSelection
+      .attr("clip-path","url(#rect-clip)")  // clip the drawing
       .attr("pointer-events", "visibleFill")
       .attr("d", self.pathGenerator)
       .attr("stroke", "black")
-      .on("mouseenter", function(_, d) {
+      .on("mouseenter", function (_, d) {
         d3.select(this).attr("fill", "green");
         let base = d.properties.name;
         if (self.grouped[d.properties.name]) {
@@ -69,19 +97,18 @@ export class MapView {
         }
         self.mapTooltip.text(base);
         onCountry(
-          filteringData => d.properties.name == filteringData.creatorCountry
+          (filteringData) => d.properties.name == filteringData.creatorCountry
         );
       })
-      .on("mousemove", function(e) {
+      .on("mousemove", function (e) {
         d3.select(this).attr("fill", "green");
         self.mapTooltip.attr(
           "style",
-          `position: absolute; top: ${e.clientY + 10}px; left: ${
-            e.clientX
+          `position: absolute; top: ${e.clientY + 10}px; left: ${e.clientX
           }px; background-color: #fff;`
         );
       })
-      .on("mouseleave", function(_, d) {
+      .on("mouseleave", function (_, d) {
         d3.select(this).attr("fill", self.color(d));
         self.mapTooltip.attr("style", "visibility: hidden;");
         onCountry(null);
@@ -91,6 +118,9 @@ export class MapView {
     this.update(data);
   }
 
+  /**
+   * Returns color of the country
+   */
   color(d) {
     if (this.grouped[d.properties.name]) {
       return this.colorScale(this.grouped[d.properties.name]);
@@ -98,10 +128,12 @@ export class MapView {
     return "#eee";
   }
 
+  /**
+   *
+   */
   update(data) {
     // for the hover elements
     this.grouped = groupByCountry(data);
-
     this.pathSelection.attr("fill", this.color.bind(this));
   }
 }
