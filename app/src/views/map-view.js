@@ -74,17 +74,22 @@ export class MapView {
     this.pathGenerator = d3.geoPath(projection);
 
     this.countriesToFilter = [];
+    this.hoverCountry = null
   }
 
   updateFilters(onCountry) {
-    console.log(this.countriesToFilter);
-    if (this.countriesToFilter.length == 0) {
+
+    if (this.countriesToFilter.length == 0 && !this.hoverCountry) {
       onCountry(null);
       return;
     }
 
     onCountry(d => {
-      return this.countriesToFilter.includes(d.creatorCountry);
+      let countries = this.countriesToFilter
+      if (this.hoverCountry) {
+        countries = [this.hoverCountry, ...countries]
+      }
+      return countries.includes(d.creatorCountry);
     });
   }
 
@@ -124,13 +129,13 @@ export class MapView {
           base += ": " + self.grouped[d.properties.name].toString();
           // show the display for the paintings
           // d3.select(".display-info").style("display", "block");
-        } else {
-          // hide the display for the paintings
-          // d3.select(".display-info").style("display", "none");
         }
+
         self.mapTooltip.text(base);
+        self.hoverCountry = d.properties.name
+        self.updateFilters(onCountry);
       })
-      .on("mousemove", function(e) {
+      .on("mousemove", function(e, d) {
         d3.select(this).attr("fill", "yellow");
         self.mapTooltip.attr(
           "style",
@@ -138,11 +143,15 @@ export class MapView {
             e.clientX
           }px; background-color: #fff;`
         );
+        self.hoverCountry = d.properties.name
+        self.updateFilters(onCountry);
       })
       .on("mouseleave", function(_, d) {
         d3.select(this).attr("fill", self.color(d));
         self.mapTooltip.attr("style", "visibility: hidden;");
         // d3.select(".display-info").style("display", "block");
+        if (self.hoverCountry === d.properties.name) { self.hoverCountry = null }
+        self.updateFilters(onCountry);
       })
       .on("click", (_, d) => {
         self.toggle(d.properties.name);
@@ -159,7 +168,7 @@ export class MapView {
   color(d) {
     const country = d.properties.name;
 
-    if (this.countriesToFilter.includes(country)) {
+    if (this.countriesToFilter.includes(country) || this.hoverCountry == country) {
       return this.selectedColorScale(this.grouped[country] || 0);
     }
 
