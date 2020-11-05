@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { HEIGHT, WIDTH } from "./constants";
-import europeJson from "./europe.json";
+import { HEIGHT, WIDTH } from "../models/constants";
+import europeJson from "../models/europe.json";
 
 /**
  * Number of paintings by country
@@ -51,7 +51,7 @@ export class MapView {
       .attr("width", this.viewWidth)
       .attr("height", this.viewHeight)
       .attr("fill", "none")
-      .attr("stroke", "black")
+      .attr("stroke", "black");
 
     // Create a color scale from the countries
     const grouped = groupByCountry(allData);
@@ -85,7 +85,7 @@ export class MapView {
       .append("path");
 
     this.pathSelection
-      .attr("clip-path","url(#rect-clip)")  // clip the drawing
+      .attr("clip-path", "url(#rect-clip)") // clip the drawing
       .attr("pointer-events", "visibleFill")
       .attr("d", self.pathGenerator)
       .attr("stroke", "black")
@@ -94,6 +94,11 @@ export class MapView {
         let base = d.properties.name;
         if (self.grouped[d.properties.name]) {
           base += ": " + self.grouped[d.properties.name].toString();
+          // show the display for the paintings
+          d3.select(".display-info").style("display", "block");
+        } else {
+          // hide the display for the paintings
+          d3.select(".display-info").style("display", "none");
         }
         self.mapTooltip.text(base);
         onCountry(
@@ -104,7 +109,8 @@ export class MapView {
         d3.select(this).attr("fill", "green");
         self.mapTooltip.attr(
           "style",
-          `position: absolute; top: ${e.clientY + 10}px; left: ${e.clientX
+          `position: absolute; top: ${e.clientY + 10}px; left: ${
+            e.clientX
           }px; background-color: #fff;`
         );
       })
@@ -112,6 +118,8 @@ export class MapView {
         d3.select(this).attr("fill", self.color(d));
         self.mapTooltip.attr("style", "visibility: hidden;");
         onCountry(null);
+        // show the display for the paintings
+        d3.select(".display-info").style("display", "block");
       });
 
     // then update color

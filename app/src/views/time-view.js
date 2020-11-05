@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { HEIGHT, WIDTH } from "./constants";
+import { HEIGHT, WIDTH } from "../models/constants";
 
 /**
  * TimeView object

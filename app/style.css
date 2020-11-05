@@ -1,4 +1,116 @@
-.painting-title {
-    font-weight: bold;
-    font-size: 12pt;
+.counter {
+  font-family: "Roboto", serif;
+  font-size: 11pt;
+  font-size: 1.5vw;
+}
+
+.title {
+  font-family: "Playfair Display", serif;
+  font-weight: bold;
+  font-size: 12pt;
+  font-size: 1.3vw;
+}
+
+.artist-title {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 11pt;
+  font-size: 1.2vw;
+}
+
+.artist-info {
+  font-family: "Source Sans Pro", serif;
+  font-size: 10pt;
+  font-size: 1vw;
+}
+
+.where-title {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 11pt;
+  font-size: 1.2vw;
+}
+
+.where-info {
+  font-family: "Source Sans Pro", serif;
+  font-size: 10pt;
+  font-size: 1vw;
+}
+
+.movement-title {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 11pt;
+  font-size: 1.2vw;
+}
+
+.movement-info {
+  font-family: "Source Sans Pro", serif;
+  font-size: 10pt;
+  font-size: 1vw;
+}
+
+.genre-title {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 11pt;
+  font-size: 1.2vw;
+}
+
+.genre-info {
+  font-family: "Source Sans Pro", serif;
+  font-size: 10pt;
+  font-size: 1vw;
+}
+
+.material-title {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 11pt;
+  font-size: 1.2vw;
+}
+
+.material-info {
+  font-family: "Source Sans Pro", serif;
+  font-size: 10pt;
+  font-size: 1vw;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 2% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  font-family: "Source Sans Pro", serif;
+  color: #aaa;
+  float: right;
+  font-size: 28pt;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
