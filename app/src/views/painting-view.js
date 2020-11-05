@@ -128,8 +128,11 @@ export class PaintingView {
     // early exit if there are no paintings
     if (npaintings <= 0) {
       this.arrowG.select("text").text("0 / 0");
+      this.displayG.style("display", "none")
       return null;
     }
+
+    this.displayG.style("display", "block")
 
     // Update the data set and painting number
     if (data !== this.currentData) {

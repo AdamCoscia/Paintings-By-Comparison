@@ -57,8 +57,13 @@ export class MapView {
     const grouped = groupByCountry(allData);
     this.colorScale = d3
       .scaleSequential(d3.interpolateBlues)
-      .domain(d3.extent(Object.entries(grouped), (x) => x[1]))
+      .domain(d3.extent(Object.entries(grouped), x => x[1]))
       .range([d3.interpolateBlues(0.3), d3.interpolateBlues(1)]);
+
+    this.selectedColorScale = d3
+      .scaleSequential(d3.interpolateGreens)
+      .domain(d3.extent(Object.entries(grouped), x => x[1]))
+      .range([d3.interpolateGreens(0.3), d3.interpolateGreens(1)]);
 
     // Create the map projection
     const projection = d3
@@ -67,6 +72,28 @@ export class MapView {
       .scale(0.1 * WIDTH + 90) // zoom in/out, default 150
       .translate([0.1 * WIDTH, 0.24 * HEIGHT]); // translate center to [x, y]
     this.pathGenerator = d3.geoPath(projection);
+
+    this.countriesToFilter = [];
+  }
+
+  updateFilters(onCountry) {
+    console.log(this.countriesToFilter);
+    if (this.countriesToFilter.length == 0) {
+      onCountry(null);
+      return;
+    }
+
+    onCountry(d => {
+      return this.countriesToFilter.includes(d.creatorCountry);
+    });
+  }
+
+  toggle(country) {
+    if (this.countriesToFilter.includes(country)) {
+      this.countriesToFilter = this.countriesToFilter.filter(x => x != country);
+    } else {
+      this.countriesToFilter.push(country);
+    }
   }
 
   /**
@@ -87,26 +114,24 @@ export class MapView {
     this.pathSelection
       .attr("clip-path", "url(#rect-clip)") // clip the drawing
       .attr("pointer-events", "visibleFill")
+      .attr("cursor", "pointer")
       .attr("d", self.pathGenerator)
       .attr("stroke", "black")
-      .on("mouseenter", function (_, d) {
-        d3.select(this).attr("fill", "green");
+      .on("mouseenter", function(_, d) {
+        d3.select(this).attr("fill", "yellow");
         let base = d.properties.name;
         if (self.grouped[d.properties.name]) {
           base += ": " + self.grouped[d.properties.name].toString();
           // show the display for the paintings
-          d3.select(".display-info").style("display", "block");
+          // d3.select(".display-info").style("display", "block");
         } else {
           // hide the display for the paintings
-          d3.select(".display-info").style("display", "none");
+          // d3.select(".display-info").style("display", "none");
         }
         self.mapTooltip.text(base);
-        onCountry(
-          (filteringData) => d.properties.name == filteringData.creatorCountry
-        );
       })
-      .on("mousemove", function (e) {
-        d3.select(this).attr("fill", "green");
+      .on("mousemove", function(e) {
+        d3.select(this).attr("fill", "yellow");
         self.mapTooltip.attr(
           "style",
           `position: absolute; top: ${e.clientY + 10}px; left: ${
@@ -114,12 +139,14 @@ export class MapView {
           }px; background-color: #fff;`
         );
       })
-      .on("mouseleave", function (_, d) {
+      .on("mouseleave", function(_, d) {
         d3.select(this).attr("fill", self.color(d));
         self.mapTooltip.attr("style", "visibility: hidden;");
-        onCountry(null);
-        // show the display for the paintings
-        d3.select(".display-info").style("display", "block");
+        // d3.select(".display-info").style("display", "block");
+      })
+      .on("click", (_, d) => {
+        self.toggle(d.properties.name);
+        self.updateFilters(onCountry);
       });
 
     // then update color
@@ -130,8 +157,14 @@ export class MapView {
    * Returns color of the country
    */
   color(d) {
-    if (this.grouped[d.properties.name]) {
-      return this.colorScale(this.grouped[d.properties.name]);
+    const country = d.properties.name;
+
+    if (this.countriesToFilter.includes(country)) {
+      return this.selectedColorScale(this.grouped[country] || 0);
+    }
+
+    if (this.grouped[country]) {
+      return this.colorScale(this.grouped[country]);
     }
     return "#eee";
   }
