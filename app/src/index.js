@@ -4,6 +4,7 @@ import { MapView } from "./views/map-view";
 import { TimeView } from "./views/time-view";
 import { DepictsView } from "./views/depicts-view";
 import { PaintingView } from "./views/painting-view";
+import { ClusterView } from "./views/cluster-view";
 
 // force the window to reload on resize!
 window.onresize = function () {
@@ -24,16 +25,18 @@ async function main() {
     .attr("height", HEIGHT)
     .attr("width", WIDTH);
 
-  const mapView = new MapView(svg, data);
-  const timeView = new TimeView(svg, data);
-  const depictsView = new DepictsView(svg, data);
-  const paintingView = new PaintingView(svg, data);
+  const mapView = new MapView(svg, data),
+    timeView = new TimeView(svg, data),
+    depictsView = new DepictsView(svg, data),
+    paintingView = new PaintingView(svg, data),
+    clusterView = new ClusterView(svg, data);
 
   const views = {
     map: mapView,
     time: timeView,
     depicts: depictsView,
     painting: paintingView,
+    cluster: clusterView,
   };
 
   const filterState = {};
@@ -65,6 +68,7 @@ async function main() {
   mapView.initialize(data, makeUpdater("map"));
   timeView.initialize(data, makeUpdater("time"));
   depictsView.initialize(data);
+  clusterView.initialize(data, makeUpdater("cluster"));
   paintingView.initialize();
 }
 

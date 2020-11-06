@@ -14,22 +14,26 @@ export class TimeView {
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT / 3;
 
+    // Add the time view group
     this.timeG = svg
       .append("g")
       .classed("time", true)
       .attr("transform", `translate(0, ${this.viewHeight})`);
 
+    // Create the x axis scale
     this.xScale = d3
       .scaleLinear()
       .domain(d3.extent(allData, (d) => d.year))
       .range([0, this.viewWidth]);
 
+    // Bin the data
     const bins = d3
       .bin()
       .value((d) => d.year)
       .domain(this.xScale.domain())
       .thresholds(this.xScale.ticks(20))(allData);
 
+    // create the y axis scale based on the binning strategy
     this.yScale = d3
       .scaleLinear()
       .domain([0, d3.max(bins.map((x) => x.length))])
@@ -43,6 +47,7 @@ export class TimeView {
     const self = this;
     self.filterBounds = null;
 
+    // create the brushing function
     function onBrush(e) {
       switch (e.type) {
         case "start":
@@ -64,6 +69,7 @@ export class TimeView {
       }
     }
 
+    // add the brush to the svg
     const brush = d3
       .brushX()
       .extent([
@@ -71,7 +77,6 @@ export class TimeView {
         [this.viewWidth, this.viewHeight],
       ])
       .on("start brush end", onBrush);
-
     this.svg
       .append("g")
       .classed("brush", true)

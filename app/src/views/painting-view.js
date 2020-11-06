@@ -10,7 +10,8 @@ export class PaintingView {
    */
   constructor(svg, allData) {
     this.svg = svg;
-    this.currentData = allData; // keep track of the current data set specific to the class
+    this.currentData = allData; // track current data set
+    this.npaintings = allData.length; // track number of paintings
     this.paintingNumber = 0; // where in the dataset to look for a painting
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT;
@@ -19,7 +20,7 @@ export class PaintingView {
     this.paintingG = svg
       .append("g")
       .classed("painting", true)
-      .attr("transform", `translate(${3 * this.viewWidth}, 0)`);
+      .attr("transform", `translate(${(3 * WIDTH) / 4}, 0)`);
 
     // Draw the border around the whole group
     this.paintingG
@@ -38,11 +39,12 @@ export class PaintingView {
     this.displayG = this.paintingG
       .append("g")
       .classed("display-info", true)
+      .attr("display", "block")
       .attr("transform", `translate(0, ${this.viewHeight / 8})`);
   }
 
   /**
-   * Takes in filtered data
+   * Creates the static view elements and loads the initial data set
    */
   initialize() {
     const self = this;
@@ -56,27 +58,30 @@ export class PaintingView {
       .attr("class", "counter")
       .attr("transform", `translate(${shift[0]}, ${shift[1]})`)
       .attr("text-anchor", "middle")
-      .text(`${self.paintingNumber + 1} / ${self.currentData.length}`);
+      .text(`${self.paintingNumber + 1} / ${self.npaintings}`);
 
     // add SVG left arrow as clickable image to the page
     // Add a rectangle behind the arrow that appears when you hover on the painting
-    const TL = [self.viewWidth / 3 - arrowWidth / 2, arrowHeight / 4];
+    const SL = [self.viewWidth / 3 - arrowWidth / 2, arrowHeight / 4];
     let leftRect = this.arrowG
       .append("rect")
-      .attr("transform", `translate(${TL[0] + arrowWidth / 4}, ${TL[1]})`)
+      .attr("transform", `translate(${SL[0] + arrowWidth / 4}, ${SL[1]})`)
       .attr("width", arrowWidth / 2)
       .attr("height", arrowHeight)
       .attr("fill", d3.interpolateBlues(0.5)) // same color as timeline bars!
       .attr("opacity", "0");
     this.arrowG
       .append("svg:image")
+      .attr("id", "left-arrow")
       .attr("xlink:href", "src/assets/left-arrow.svg")
-      .attr("transform", `translate(${TL[0]}, ${TL[1]})`)
+      .attr("transform", `translate(${SL[0]}, ${SL[1]})`)
       .attr("width", arrowWidth)
       .attr("height", arrowHeight)
       .on("click", function () {
-        --self.paintingNumber;
-        self.update(self.currentData); // uses member variable to access constantly updating data set
+        if (self.paintingNumber > 0) {
+          --self.paintingNumber;
+          self.loadPainting();
+        }
       })
       .on("mouseover", function () {
         // When the user hovers on the preview, a border appears around it
@@ -89,23 +94,26 @@ export class PaintingView {
 
     // add SVG right arrow as clickable image to the page
     // Add a rectangle behind the arrow that appears when you hover on the painting
-    const TR = [(2 * self.viewWidth) / 3 - arrowWidth / 2, arrowHeight / 4];
+    const SR = [(2 * self.viewWidth) / 3 - arrowWidth / 2, arrowHeight / 4];
     let rightRect = this.arrowG
       .append("rect")
-      .attr("transform", `translate(${TR[0] + arrowWidth / 4}, ${TR[1]})`)
+      .attr("transform", `translate(${SR[0] + arrowWidth / 4}, ${SR[1]})`)
       .attr("width", arrowWidth / 2)
       .attr("height", arrowHeight)
       .attr("fill", d3.interpolateBlues(0.5)) // same color as timeline bars!
       .attr("opacity", "0");
     this.arrowG
       .append("svg:image")
+      .attr("id", "right-arrow")
       .attr("xlink:href", "src/assets/right-arrow.svg")
-      .attr("transform", `translate(${TR[0]}, ${TR[1]})`)
+      .attr("transform", `translate(${SR[0]}, ${SR[1]})`)
       .attr("width", arrowWidth)
       .attr("height", arrowHeight)
       .on("click", function () {
-        ++self.paintingNumber;
-        self.update(self.currentData); // uses member variable to access constantly updating data set
+        if (self.paintingNumber < self.npaintings - 1) {
+          ++self.paintingNumber;
+          self.loadPainting();
+        }
       })
       .on("mouseover", function () {
         // When the user hovers on the preview, a border appears around it
@@ -116,42 +124,56 @@ export class PaintingView {
         rightRect.transition().duration(100).style("opacity", 0);
       });
 
-    self.update(self.currentData);
+    // Load the first painting into the view
+    self.loadPainting();
   }
 
   /**
-   * Updates the view asynchronously with filtered data
+   * Updates the view with filtered data
    */
-  async update(data) {
-    let npaintings = data.length;
-
-    // early exit if there are no paintings
-    if (npaintings <= 0) {
+  update(data) {
+    if (data.length <= 0) {
+      // set painting counter to 0 and hide the painting display group
       this.arrowG.select("text").text("0 / 0");
-      this.displayG.style("display", "none")
-      return null;
+      this.displayG.style("display", "none");
+    } else {
+      if (!arraysEqual(data, this.currentData)) {
+        // Update data set and load new painting information
+        this.currentData = data;
+        this.npaintings = data.length;
+        this.paintingNumber = 0;
+        this.loadPainting();
+      } else {
+        // update the painting counter (if it wasn't before)
+        this.arrowG
+          .select("text")
+          .text(`${this.paintingNumber + 1} / ${this.npaintings}`);
+      }
+      // make the display info visible again (if it wasn't before)
+      this.displayG.style("display", "block");
     }
+  }
 
-    this.displayG.style("display", "block")
-
-    // Update the data set and painting number
-    if (data !== this.currentData) {
-      // set class's dataset to incoming dataset and restart the numbering
-      this.currentData = data;
-      this.paintingNumber = 0;
-    } else if (this.paintingNumber < 0) {
-      this.paintingNumber = 0;
-    } else if (this.paintingNumber >= npaintings) {
-      this.paintingNumber = npaintings - 1;
-    }
-
+  /**
+   * Asynchronously loads the painting information into the view
+   */
+  async loadPainting() {
     // update the arrow counter text
     this.arrowG
       .select("text")
-      .text(`${this.paintingNumber + 1} / ${npaintings}`);
+      .text(`${this.paintingNumber + 1} / ${this.npaintings}`);
 
-    // get the painting data
-    const painting = data[this.paintingNumber],
+    // clear the previous view
+    this.displayG.selectAll("*").remove();
+
+    // Display temp loading text while getting info
+    this.addText("loading", this.viewWidth / 2, 0, "Loading painting...").attr(
+      "text-anchor",
+      "middle"
+    );
+
+    // Get the painting attributes and image metadata
+    const painting = this.currentData[this.paintingNumber],
       artworkLabel = painting.artworkLabel.trim(),
       yearLabel = painting.year,
       collectionLabel = painting.collectionLabel.trim(),
@@ -162,12 +184,11 @@ export class PaintingView {
       creatorLabel = painting.creatorLabel.trim(),
       creatorBirthPlace = painting.creatorBirthPlaceLabel.trim(),
       creatorCountry = painting.creatorCountry.trim(),
-      imageURL = painting.image.trim();
+      wikidataURL = painting.wikidataUrl.trim(),
+      imageURL = painting.image.trim(),
+      imgMeta = await getMeta(imageURL);
 
-    // Wait for the image meta data before moving on (in case lots of updates are happening)
-    const imgMeta = await getMeta(imageURL);
-
-    // clear the view in prep for next painting
+    // clear the view in prep for new painting info
     this.displayG.selectAll("*").remove();
 
     // Add painting label and year
@@ -178,7 +199,10 @@ export class PaintingView {
       year = isBlank(yearLabel) ? "Unknown" : yearLabel,
       title = `${artwork} (${year})`;
     let titleNode = this.addText("title", this.viewWidth / 2, 0, title);
-    titleNode.attr("text-anchor", "middle"); // centered
+    // center the title and make it clickable
+    titleNode.attr("text-anchor", "middle").on("click", function () {
+      window.open(wikidataURL, "_blank");
+    });
     const titleRect = titleNode.node().getBBox();
 
     // Set the preview image size based on image metadata
@@ -202,7 +226,12 @@ export class PaintingView {
       .select("img")
       .attr("src", imageURL)
       .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("height", "100%")
+      .on("click", function () {
+        window.open(imageURL, "_blank");
+      });
+    // Add clickable url link to the top
+    modal.select("a").attr("href", wikidataURL).text(title);
     // When the user clicks on <span> (x), close the modal
     modal.select("span").on("click", function () {
       modal.style("display", "none");
@@ -220,6 +249,7 @@ export class PaintingView {
     // add the preview of the painting to the display group
     this.displayG
       .append("svg:image")
+      .attr("id", "preview")
       .attr("href", imageURL)
       .attr("transform", `translate(${imageX}, ${imageY})`)
       .attr("width", imageWidth)
@@ -352,4 +382,17 @@ function getMeta(url) {
     img.onerror = () => reject();
     img.src = url;
   });
+}
+
+/**
+ * Deep compares two arrays (ordering matters!)
+ */
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }

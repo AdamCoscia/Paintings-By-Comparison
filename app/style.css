@@ -1,82 +1,50 @@
+#preview,
+#left-arrow,
+#right-arrow {
+  cursor: pointer;
+}
+
 .counter {
   font-family: "Roboto", serif;
   font-size: 11pt;
   font-size: 1.5vw;
 }
 
-.title {
+.title,
+.loading {
   font-family: "Playfair Display", serif;
   font-weight: bold;
   font-size: 12pt;
   font-size: 1.3vw;
 }
 
-.artist-title {
-  font-family: "Source Sans Pro", serif;
-  font-weight: bold;
-  font-size: 11pt;
-  font-size: 1.2vw;
+.title:hover,
+.title:focus {
+  fill: steelblue;
+  cursor: pointer;
 }
 
-.artist-info {
-  font-family: "Source Sans Pro", serif;
-  font-size: 10pt;
-  font-size: 1vw;
-}
-
-.where-title {
-  font-family: "Source Sans Pro", serif;
-  font-weight: bold;
-  font-size: 11pt;
-  font-size: 1.2vw;
-}
-
-.where-info {
-  font-family: "Source Sans Pro", serif;
-  font-size: 10pt;
-  font-size: 1vw;
-}
-
-.movement-title {
-  font-family: "Source Sans Pro", serif;
-  font-weight: bold;
-  font-size: 11pt;
-  font-size: 1.2vw;
-}
-
-.movement-info {
-  font-family: "Source Sans Pro", serif;
-  font-size: 10pt;
-  font-size: 1vw;
-}
-
-.genre-title {
-  font-family: "Source Sans Pro", serif;
-  font-weight: bold;
-  font-size: 11pt;
-  font-size: 1.2vw;
-}
-
-.genre-info {
-  font-family: "Source Sans Pro", serif;
-  font-size: 10pt;
-  font-size: 1vw;
-}
-
+.artist-title,
+.where-title,
+.movement-title,
+.genre-title,
 .material-title {
   font-family: "Source Sans Pro", serif;
   font-weight: bold;
   font-size: 11pt;
-  font-size: 1.2vw;
+  font-size: 1.1vw;
 }
 
+.artist-info,
+.where-info,
+.movement-info,
+.genre-info,
 .material-info {
   font-family: "Source Sans Pro", serif;
   font-size: 10pt;
   font-size: 1vw;
 }
 
-/* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
@@ -90,7 +58,6 @@
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
-/* Modal Content/Box */
 .modal-content {
   background-color: #fefefe;
   margin: 2% auto; /* 15% from the top and centered */
@@ -99,13 +66,29 @@
   width: 90%; /* Could be more or less, depending on screen size */
 }
 
-/* The Close Button */
+.modal-content img {
+  cursor: pointer;
+}
+
+.modal-info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.link {
+  font-family: "Source Sans Pro", serif;
+  color: #aaa;
+  font-size: 18pt;
+  font-size: 1.8vw;
+}
+
 .close {
   font-family: "Source Sans Pro", serif;
   color: #aaa;
-  float: right;
-  font-size: 28pt;
   font-weight: bold;
+  font-size: 28pt;
+  font-size: 3vw;
 }
 
 .close:hover,
