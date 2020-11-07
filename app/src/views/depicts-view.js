@@ -25,13 +25,17 @@ export class DepictsView {
    * Takes in filtered data object
    */
   initialize(data) {
-    // set initial word colors
-    const allWords = aggregateWords(data).map((d) => d.word);
+    // Get all words and add special root string
+    let allWords = aggregateWords(data, "depicts").map((d) => d.word);
+    allWords.push("SPECIAL_ROOT_STRING");
+
+    // Map colors to all of the words
     for (const word of allWords) {
       if (!this.wordColors[word]) {
         this.wordColors[word] = d3.interpolateRainbow(Math.random());
       }
     }
+
     // draw the treemap
     this.update(data);
   }
@@ -40,13 +44,16 @@ export class DepictsView {
    * Takes in filtered data object
    */
   update(data) {
-    const wordsArray = aggregateWords(data);
+    // Get word counts plus special 0 count root string
+    let wordCounts = aggregateWords(data, "depicts");
+    wordCounts.push({ word: "SPECIAL_ROOT_STRING", val: 0 });
+
     const root = d3
       .stratify()
       .id((d) => d.word)
       .parentId((d) =>
         d.word == "SPECIAL_ROOT_STRING" ? null : "SPECIAL_ROOT_STRING"
-      )(wordsArray);
+      )(wordCounts);
 
     root.sum((d) => d.val).sort((a, b) => b.value - a.value);
 

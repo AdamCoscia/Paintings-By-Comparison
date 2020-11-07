@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-import { groupBy } from "../models/util";
+import { groupBy, aggregateWords } from "../models/util";
 
 /**
  * ClusterView object
@@ -77,7 +77,19 @@ export class ClusterView {
   initialize(data, onFilter) {
     const self = this;
 
-    console.log(groupBy(data, "materialLabel"));
+    const locationGroups = groupBy(data, "locLabel");
+    const materialGroups = groupBy(data, "materialLabel");
+    const genreGroups = groupBy(data, "genreLabel");
+    const movementGroups = groupBy(data, "movement");
+    const collectionGroups = groupBy(data, "collectionLabel");
+    // const allWords = aggregateWords(data, "materialLabel");
+
+    console.log(locationGroups);
+    console.log(materialGroups);
+    console.log(genreGroups);
+    console.log(movementGroups);
+    console.log(collectionGroups);
+    // console.log(allWords);
 
     self.drawClusters();
 

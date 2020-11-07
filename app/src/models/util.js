@@ -1,18 +1,14 @@
 import * as d3 from "d3";
 
 /**
- * Word counter for depicts view.
+ * Word counter for an attribute in the dataset.
  * Author: Vijay Marupudi
  */
-export function aggregateWords(data) {
+export function aggregateWords(data, attr) {
   const words = {};
   data.forEach((d) => {
-    d.depicts.forEach((word) => {
-      if (words[word]) {
-        words[word] += 1;
-      } else {
-        words[word] = 1;
-      }
+    d[attr].forEach((word) => {
+      words[word] ? (words[word] += 1) : (words[word] = 1);
     });
   });
   const wordsArray = Object.entries(words)
@@ -21,7 +17,6 @@ export function aggregateWords(data) {
       val,
     }))
     .filter((d) => d.val != 1);
-  wordsArray.push({ word: "SPECIAL_ROOT_STRING", val: 0 });
   return wordsArray;
 }
 

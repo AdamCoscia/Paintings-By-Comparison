@@ -65,11 +65,11 @@ export class PaintingView {
     const painting = this.currentData[this.paintingNumber],
       artworkLabel = painting.artworkLabel.trim(),
       yearLabel = painting.year,
-      collectionLabel = painting.collectionLabel.trim(),
       locationLabel = painting.locLabel.trim(),
-      movementLabel = painting.movement.trim(),
-      genreLabel = painting.genreLabel.trim(),
-      materialLabel = painting.materialLabel.trim(),
+      collections = painting.collectionLabel,
+      movements = painting.movement,
+      genres = painting.genreLabel,
+      materials = painting.materialLabel,
       creatorLabel = painting.creatorLabel.trim(),
       creatorBirthPlace = painting.creatorBirthPlaceLabel.trim(),
       creatorCountry = painting.creatorCountry.trim(),
@@ -166,46 +166,42 @@ export class PaintingView {
     const creator = isBlank(creatorLabel) ? "Unknown Artist" : creatorLabel,
       birthplace = isBlank(creatorBirthPlace) ? "" : creatorBirthPlace,
       country = isBlank(creatorCountry) ? "" : creatorCountry,
-      artist = [creator, birthplace, country].filter(Boolean).join(", ");
+      artist = [creator, birthplace, country].filter(Boolean).join("; ");
     let artistNode = this.addText("artist-info", padLeft, artistY, artist);
     const artistRect = artistNode.node().getBBox();
 
-    // Add whereabouts information
-    let whereY = artistY + artistRect.height + 10; // use prev txtY + Height + pad
-    let whereTitle = this.addText("where-title", padLeft, whereY, "Location");
-    whereY += whereTitle.node().getBBox().height; // + added title's height
-    const collection = isBlank(collectionLabel) ? "" : collectionLabel,
-      location = isBlank(locationLabel) ? "Unknown Location" : locationLabel;
-    const where =
-      collection !== location
-        ? [collection, location].filter(Boolean).join(", ")
-        : collection; // don't print the same location twice
-    let whereNode = this.addText("where-info", padLeft, whereY, where);
-    const whereRect = whereNode.node().getBBox();
+    // Add collection information
+    let collY = artistY + artistRect.height + 5; // use prev txtY + Height + pad
+    let collTitle = this.addText("coll-title", padLeft, collY, "Collection");
+    collY += collTitle.node().getBBox().height; // + added title's height
+    const loc = isBlank(locationLabel) ? "Unknown" : locationLabel;
+    collections.filter((coll) => coll !== loc).push(loc);
+    const coll = collections.join("; ");
+    let collNode = this.addText("coll-info", padLeft, collY, coll);
+    const collRect = collNode.node().getBBox();
 
     // Add movement information
-    let mvtY = whereY + whereRect.height + 10; // use prev txtY + Height + pad
+    let mvtY = collY + collRect.height + 5; // use prev txtY + Height + pad
     let mvtTitle = this.addText("movement-title", padLeft, mvtY, "Movement");
     mvtY += mvtTitle.node().getBBox().height; // + added title's height
-    const movement = isBlank(movementLabel) ? "Unknown" : movementLabel;
-    let mvtNode = this.addText("movement-info", padLeft, mvtY, movement);
+    const mvt = isBlank(movements[0]) ? "Unknown" : movements.join("; ");
+    let mvtNode = this.addText("movement-info", padLeft, mvtY, mvt);
     const mvtRect = mvtNode.node().getBBox();
 
     // Add genre information
-    let genreY = mvtY + mvtRect.height + 10; // use prev txtY + Height + pad
+    let genreY = mvtY + mvtRect.height + 5; // use prev txtY + Height + pad
     let genreTitle = this.addText("genre-title", padLeft, genreY, "Genre");
     genreY += genreTitle.node().getBBox().height; // + added title's height
-    const genre = isBlank(genreLabel) ? "Unknown" : genreLabel;
+    const genre = isBlank(genres[0]) ? "Unknown" : genres.join("; ");
     let genreNode = this.addText("genre-info", padLeft, genreY, genre);
     const genreRect = genreNode.node().getBBox();
 
     // Add material information
-    let matY = genreY + genreRect.height + 10; // use prev txtY + Height + pad
+    let matY = genreY + genreRect.height + 5; // use prev txtY + Height + pad
     let matTitle = this.addText("material-title", padLeft, matY, "Material");
     matY += matTitle.node().getBBox().height; // + added title's height
-    const mat = isBlank(materialLabel) ? "Unknown" : materialLabel;
-    let matNode = this.addText("material-info", padLeft, matY, mat);
-    const matRect = matNode.node().getBBox();
+    const mat = isBlank(materials[0]) ? "Unknown" : materials.join("; ");
+    this.addText("material-info", padLeft, matY, mat);
   }
 
   /**

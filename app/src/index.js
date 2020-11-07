@@ -13,10 +13,17 @@ window.onresize = function () {
 
 async function main() {
   let data = await d3.csv("src/data/data-to-visualize.csv");
+
+  // for attributes with multiple values split on ; into arrays
   data.forEach((d) => {
     d.year = parseInt(d.year);
     d.depicts = d.depicts.split(";").map((x) => x.trim());
+    d.collectionLabel = d.collectionLabel.split(";").map((x) => x.trim());
+    d.movement = d.movement.split(";").map((x) => x.trim());
+    d.genreLabel = d.genreLabel.split(";").map((x) => x.trim());
+    d.materialLabel = d.materialLabel.split(";").map((x) => x.trim());
   });
+
   d3.select("body").attr("style", "margin: 0px;");
 
   let svg = d3
