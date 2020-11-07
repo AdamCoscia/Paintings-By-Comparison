@@ -1,29 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-
-/**
- * Word counter
- */
-function aggregateWords(data) {
-  const words = {};
-  data.forEach((d) => {
-    d.depicts.forEach((word) => {
-      if (words[word]) {
-        words[word] += 1;
-      } else {
-        words[word] = 1;
-      }
-    });
-  });
-  const wordsArray = Object.entries(words)
-    .map(([word, val]) => ({
-      word,
-      val,
-    }))
-    .filter((d) => d.val != 1);
-  wordsArray.push({ word: "SPECIAL_ROOT_STRING", val: 0 });
-  return wordsArray;
-}
+import { aggregateWords } from "../models/util";
 
 /**
  * DepictsView object
@@ -33,29 +10,29 @@ export class DepictsView {
    * Takes in SVG d3 object and all data
    */
   constructor(svg, allData) {
+    this.allData = allData;
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT / 3;
-
+    this.wordColors = {};
+    this.depictsTooltip = d3.select("body").append("div");
     this.depictsG = svg
       .append("g")
       .classed("depicts", true)
       .attr("transform", `translate(0, ${(2 * HEIGHT) / 3})`);
-
-    const allWords = aggregateWords(allData).map((d) => d.word);
-    this.wordColors = {};
-    for (const word of allWords) {
-      if (!this.wordColors[word]) {
-        this.wordColors[word] = d3.interpolateRainbow(Math.random());
-      }
-    }
-
-    this.depictsTooltip = d3.select("body").append("div");
   }
 
   /**
    * Takes in filtered data object
    */
   initialize(data) {
+    // set initial word colors
+    const allWords = aggregateWords(data).map((d) => d.word);
+    for (const word of allWords) {
+      if (!this.wordColors[word]) {
+        this.wordColors[word] = d3.interpolateRainbow(Math.random());
+      }
+    }
+    // draw the treemap
     this.update(data);
   }
 

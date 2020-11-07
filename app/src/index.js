@@ -12,7 +12,7 @@ window.onresize = function () {
 };
 
 async function main() {
-  let data = await d3.csv("src/models/data-to-visualize.csv");
+  let data = await d3.csv("src/data/data-to-visualize.csv");
   data.forEach((d) => {
     d.year = parseInt(d.year);
     d.depicts = d.depicts.split(";").map((x) => x.trim());

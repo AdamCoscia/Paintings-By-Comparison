@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
+import { groupBy } from "../models/util";
 
 /**
  * ClusterView object
@@ -12,22 +13,62 @@ export class ClusterView {
     this.svg = svg;
     this.viewWidth = WIDTH / 2;
     this.viewHeight = HEIGHT;
-
-    // Create painting group
     this.clusterG = svg
       .append("g")
       .classed("cluster", true)
       .attr("transform", `translate(${WIDTH / 4}, 0)`);
+  }
 
-    // Draw the border around the whole group
+  /**
+   * Dynamic Clustered Bubbles in d3
+   * Source: https://observablehq.com/@mbostock/clustered-bubbles
+   */
+  drawClusters() {
+    const n = 740; // number of paintings
+    const m = 10; // number of clusters
+    const color = d3.scaleOrdinal(d3.range(m), d3.schemeCategory10);
+    const sampleData = {
+      children: Array.from(
+        d3.group(
+          Array.from({ length: n }, (_, i) => ({
+            group: (Math.random() * m) | 0,
+            value: -Math.log(Math.random()),
+          })),
+          (d) => d.group
+        ),
+        ([, children]) => ({ children })
+      ),
+    };
+
+    let pack = () =>
+      d3.pack().size([this.viewWidth, this.viewHeight]).padding(1)(
+        d3.hierarchy(sampleData).sum((d) => d.value)
+      );
+
+    const root = pack();
+
+    // Put circle around the groups
     this.clusterG
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", this.viewWidth)
-      .attr("height", this.viewHeight)
+      .append("g")
       .attr("fill", "none")
-      .attr("stroke", "black");
+      .attr("stroke", "#ccc")
+      .selectAll("circle")
+      .data(root.descendants().filter((d) => d.height === 1))
+      .join("circle")
+      .attr("cx", (d) => d.x)
+      .attr("cy", (d) => d.y)
+      .attr("r", (d) => d.r);
+
+    // Draw circles within each group
+    this.clusterG
+      .append("g")
+      .selectAll("circle")
+      .data(root.leaves())
+      .join("circle")
+      .attr("cx", (d) => d.x)
+      .attr("cy", (d) => d.y)
+      .attr("r", (d) => d.r)
+      .attr("fill", (d) => color(d.data.group));
   }
 
   /**
@@ -36,7 +77,9 @@ export class ClusterView {
   initialize(data, onFilter) {
     const self = this;
 
-    // TODO
+    console.log(groupBy(data, "materialLabel"));
+
+    self.drawClusters();
 
     self.update(data);
   }
@@ -48,11 +91,4 @@ export class ClusterView {
     // TODO
     return null;
   }
-}
-
-/**
- * Checks if given string is blank, null or undefined
- */
-function isBlank(str) {
-  return !str || /^\s*$/.test(str);
 }

@@ -13,27 +13,21 @@ export class TimeView {
     this.allData = allData;
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT / 3;
-
-    // Add the time view group
     this.timeG = svg
       .append("g")
       .classed("time", true)
       .attr("transform", `translate(0, ${this.viewHeight})`);
-
-    // Create the x axis scale
     this.xScale = d3
       .scaleLinear()
       .domain(d3.extent(allData, (d) => d.year))
       .range([0, this.viewWidth]);
 
-    // Bin the data
     const bins = d3
       .bin()
       .value((d) => d.year)
       .domain(this.xScale.domain())
-      .thresholds(this.xScale.ticks(20))(allData);
+      .thresholds(this.xScale.ticks(20))(allData); // Bin the data
 
-    // create the y axis scale based on the binning strategy
     this.yScale = d3
       .scaleLinear()
       .domain([0, d3.max(bins.map((x) => x.length))])
@@ -69,7 +63,7 @@ export class TimeView {
       }
     }
 
-    // add the brush to the svg
+    // create the brush
     const brush = d3
       .brushX()
       .extent([
@@ -77,6 +71,8 @@ export class TimeView {
         [this.viewWidth, this.viewHeight],
       ])
       .on("start brush end", onBrush);
+
+    // add the brush to the svg
     this.svg
       .append("g")
       .classed("brush", true)
@@ -87,19 +83,19 @@ export class TimeView {
   }
 
   /**
-   * Updates the data
+   * Updates the view using filtered data
    */
   update(data) {
-    const bins = d3
-      .bin()
-      .value((d) => d.year)
-      .domain(this.xScale.domain())
-      .thresholds(this.xScale.ticks(20))(data);
     const x = (d) => this.xScale(d.x0);
     const maxHeight = this.yScale.range()[1];
     const binHeight = (d) => this.yScale(d.length);
     const y = (d) => maxHeight - binHeight(d);
     const width = (d) => this.xScale(d.x1) - this.xScale(d.x0);
+    const bins = d3
+      .bin()
+      .value((d) => d.year)
+      .domain(this.xScale.domain())
+      .thresholds(this.xScale.ticks(20))(data);
 
     this.timeG
       .selectAll("rect")
