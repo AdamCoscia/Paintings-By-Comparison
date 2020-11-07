@@ -83,7 +83,7 @@ export class PaintingView {
     // Add painting label and year
     const artwork =
         isBlank(artworkLabel) || /Q[0-9]+$/.test(artworkLabel)
-          ? "Unknown"
+          ? "Unknown Title"
           : artworkLabel,
       year = isBlank(yearLabel) ? "Unknown" : yearLabel,
       title = `${artwork} (${year})`;

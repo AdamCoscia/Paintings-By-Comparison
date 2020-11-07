@@ -3,8 +3,8 @@ import { HEIGHT, WIDTH } from "./models/constants";
 import { MapView } from "./views/map-view";
 import { TimeView } from "./views/time-view";
 import { DepictsView } from "./views/depicts-view";
-import { PaintingView } from "./views/painting-view";
 import { ClusterView } from "./views/cluster-view";
+import { PaintingView } from "./views/painting-view";
 
 // force the window to reload on resize!
 window.onresize = function () {
