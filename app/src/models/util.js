@@ -81,12 +81,18 @@ export function isBlank(str) {
  * Get metadata from url with image asynchronously.
  * Source: https://stackoverflow.com/a/51063852.
  */
-export function getImgMeta(url) {
+export function getImgMeta(url, token) {
   return new Promise((resolve, reject) => {
     let img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => reject();
     img.src = url;
+    token.promise.then((x) => {
+      try {
+        img.src = ""; // Setting src to empty string will interrupt current download
+      } catch (e) {} // ignore abort errors
+      reject(new Error("cancelled"));
+    });
   });
 }
 
@@ -115,6 +121,45 @@ export function groupBy(xs, key) {
   }, {});
 }
 
+/**
+ * "Returns a function, that, as long as it continues to be invoked, will not
+ *  be triggered. The function will be called after it stops being called for
+ *  N milliseconds. If `immediate` is passed, trigger the function on the
+ *  leading edge, instead of the trailing."
+ * Source: https://davidwalsh.name/javascript-debounce-function
+ */
+export function debounce(func, wait, immediate) {
+  var timeout;
+  return function () {
+    var context = this,
+      args = arguments;
+    var later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+/**
+ * Source: https://stackoverflow.com/a/37642079
+ */
+export class Token {
+  constructor(fn) {
+    this.isCancellationRequested = false;
+    this.onCancelled = []; // actions to execute when cancelled
+    this.onCancelled.push(() => (this.isCancellationRequested = true));
+    // expose a promise to the outside
+    this.promise = new Promise((resolve) => this.onCancelled.push(resolve));
+  }
+  cancel() {
+    this.onCancelled.forEach((x) => x);
+  }
+}
+
 export default {
   aggregateWords,
   groupByCountry,
@@ -123,4 +168,6 @@ export default {
   getImgMeta,
   arraysEqual,
   groupBy,
+  debounce,
+  Token,
 };

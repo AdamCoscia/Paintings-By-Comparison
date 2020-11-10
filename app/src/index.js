@@ -5,11 +5,12 @@ import { TimeView } from "./views/time-view";
 import { DepictsView } from "./views/depicts-view";
 import { ClusterView } from "./views/cluster-view";
 import { PaintingView } from "./views/painting-view";
+import { debounce } from "./models/util";
 
 // force the window to reload on resize!
-window.onresize = function () {
+window.onresize = debounce(function () {
   location.reload();
-};
+}, 250);
 
 async function main() {
   let data = await d3.csv("src/data/data-to-visualize.csv");

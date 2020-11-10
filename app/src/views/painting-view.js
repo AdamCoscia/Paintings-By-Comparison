@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-import { wrap, isBlank, getImgMeta, arraysEqual } from "../models/util";
+import { wrap, isBlank, getImgMeta, arraysEqual, Token } from "../models/util";
 
 /**
  * PaintingView object
@@ -14,6 +14,7 @@ export class PaintingView {
     this.currentData = allData; // track current data set
     this.npaintings = allData.length; // track number of paintings
     this.paintingNumber = 0; // where in the dataset to look for a painting
+    this.currentToken = null;
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT;
     this.paintingG = svg
@@ -44,7 +45,7 @@ export class PaintingView {
   }
 
   /**
-   * Asynchronously loads the painting information into the view
+   * Loads the painting information into the view
    */
   async loadPainting() {
     // update the arrow counter text
@@ -61,7 +62,7 @@ export class PaintingView {
       "middle"
     );
 
-    // Get the painting attributes and image metadata
+    // Get the painting attributes
     const painting = this.currentData[this.paintingNumber],
       artworkLabel = painting.artworkLabel.trim(),
       yearLabel = painting.year,
@@ -74,8 +75,10 @@ export class PaintingView {
       creatorBirthPlace = painting.creatorBirthPlaceLabel.trim(),
       creatorCountry = painting.creatorCountry.trim(),
       wikidataURL = painting.wikidataUrl.trim(),
-      imageURL = painting.image.trim(),
-      imgMeta = await getImgMeta(imageURL);
+      apiEndpoint = painting.image.trim();
+
+    // Get image metadata
+    const imgMeta = await getImgMeta(apiEndpoint, this.currentToken);
 
     // clear the view in prep for new painting info
     this.displayG.selectAll("*").remove();
@@ -113,11 +116,11 @@ export class PaintingView {
     // Update modal img tag with new url
     modal
       .select("img")
-      .attr("src", imageURL)
+      .attr("src", apiEndpoint)
       .attr("width", "100%")
       .attr("height", "100%")
       .on("click", function () {
-        window.open(imageURL, "_blank");
+        window.open(apiEndpoint, "_blank");
       });
     // Add clickable url link to the top
     modal.select("a").attr("href", wikidataURL).text(title);
@@ -139,7 +142,7 @@ export class PaintingView {
     this.displayG
       .append("svg:image")
       .attr("id", "preview")
-      .attr("href", imageURL)
+      .attr("href", apiEndpoint)
       .attr("transform", `translate(${imageX}, ${imageY})`)
       .attr("width", imageWidth)
       .attr("height", imageHeight)
@@ -244,7 +247,9 @@ export class PaintingView {
           self.displayG.style("display") == "block"
         ) {
           --self.paintingNumber;
-          self.loadPainting();
+          self.currentToken.cancel();
+          self.currentToken = new Token();
+          self.loadPainting(); // attempt to load next painting
         }
       })
       .on("mouseover", function () {
@@ -279,7 +284,9 @@ export class PaintingView {
           self.displayG.style("display") == "block"
         ) {
           ++self.paintingNumber;
-          self.loadPainting();
+          self.currentToken.cancel();
+          self.currentToken = new Token();
+          self.loadPainting(); // attempt to load next painting
         }
       })
       .on("mouseover", function () {
@@ -291,8 +298,8 @@ export class PaintingView {
         rightRect.transition().duration(100).style("opacity", 0);
       });
 
-    // Load the first painting into the view
-    self.loadPainting();
+    this.currentToken = new Token();
+    this.loadPainting(); // attempt to load next painting
   }
 
   /**
@@ -309,7 +316,9 @@ export class PaintingView {
         this.currentData = data;
         this.npaintings = data.length;
         this.paintingNumber = 0;
-        this.loadPainting();
+        this.currentToken.cancel();
+        this.currentToken = new Token();
+        this.loadPainting(); // attempt to load next painting
       } else {
         // update the painting counter (if it wasn't before)
         this.arrowG
