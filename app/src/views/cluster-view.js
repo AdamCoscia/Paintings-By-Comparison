@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-import { arraysEqual, debounce } from "../models/util";
+import { arraysEqual} from "../models/util";
 
 /**
  * ClusterView object
@@ -14,8 +14,9 @@ export class ClusterView {
     this.npaintings = allData.length;
     this.viewWidth = WIDTH / 2;
     this.viewHeight = HEIGHT;
-    this.filter = null;
-    this.groupsToFilter = [];
+    this.filter = null; // filter function
+    this.attrToFilter = "locLabel"; // attribute to filter on
+    this.groupsToFilter = []; // attributes to filter
     this.clusterG = svg
       .append("g")
       .classed("cluster", true)
@@ -48,7 +49,7 @@ export class ClusterView {
     } else {
       this.filter((d) => {
         let groups = this.groupsToFilter;
-        return groups.includes(d["locLabel"]);
+        return groups.includes(d[this.attrToFilter]);
       });
     }
   }
@@ -65,7 +66,7 @@ export class ClusterView {
     const groups = d3.group(
       Array.from({ length: data.length }, (_, i) => ({
         id: i,
-        group: data[i]["locLabel"],
+        group: data[i][this.attrToFilter],
         value: Math.floor(Math.random() * 2) + 1,
       })),
       (d) => d.group
@@ -88,17 +89,17 @@ export class ClusterView {
           })
         )
         .join("g")
-        .attr("transform", (d, i) => `translate(0,${i * step})`);
+        .attr("transform", (_, i) => `translate(0,${i * step + 2})`);
       g.append("rect")
         .attr("x", -15) // constant x
         .attr("width", 15) // constant width
-        .attr("height", step) // fill 1/4 * 1/nkeys of the viewHeight
+        .attr("height", step - 4) // fill 1/4 * 1/nkeys of the viewHeight
         .attr("fill", color);
       g.append("text")
         .attr("class", "legend-text")
         .attr("x", -20) // constant x separation
         .attr("y", step / 2) // variable y
-        .attr("dy", "0.35em")
+        .attr("dy", "0.15em")
         .text((d) => `${d} (${groups.get(d).length})`);
     };
 
@@ -132,13 +133,13 @@ export class ClusterView {
       .attr("fill", (d) =>
         self.groupsToFilter.includes(d.leaves()[0].data.group)
           ? "#ccc"
-          : "#f4f4f4"
+          : "white"
       )
       .on("click", function (_, d) {
         const group = d.leaves()[0].data.group;
         self.toggle(group);
         // if switched on, darken the inside, otherwise lighten it again
-        const color = self.groupsToFilter.includes(group) ? "#ccc" : "#f4f4f4";
+        const color = self.groupsToFilter.includes(group) ? "#ccc" : "white";
         d3.select(this).attr("fill", color);
         self.updateFilters();
       });

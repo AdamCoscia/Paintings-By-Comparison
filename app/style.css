@@ -46,11 +46,6 @@
   font-size: 1vw;
 }
 
-.bubble-group .group-outline {
-  stroke: #ccc;
-  stroke-width: 1px;
-}
-
 .bubble-group:hover,
 .bubble-group:focus {
   cursor: pointer;

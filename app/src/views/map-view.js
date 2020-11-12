@@ -102,7 +102,7 @@ export class MapView {
       .attr("width", this.viewWidth)
       .attr("height", this.viewHeight)
       .attr("fill", "none")
-      .attr("stroke", "black")
+      // .attr("stroke", "black")
       .attr('style', 'pointer-events: visibleFill;')
       .on('click', () => {
         console.log('hello');
