@@ -1,6 +1,22 @@
 import * as d3 from "d3";
 
 /**
+ * Source: https://stackoverflow.com/a/37642079
+ */
+export class Token {
+  constructor(fn) {
+    this.isCancellationRequested = false;
+    this.onCancelled = []; // actions to execute when cancelled
+    this.onCancelled.push(() => (this.isCancellationRequested = true));
+    // expose a promise to the outside
+    this.promise = new Promise((resolve) => this.onCancelled.push(resolve));
+  }
+  cancel() {
+    this.onCancelled.forEach((x) => x);
+  }
+}
+
+/**
  * Word counter for an attribute in the dataset.
  * Author: Vijay Marupudi
  */
@@ -144,23 +160,8 @@ export function debounce(func, wait, immediate) {
   };
 }
 
-/**
- * Source: https://stackoverflow.com/a/37642079
- */
-export class Token {
-  constructor(fn) {
-    this.isCancellationRequested = false;
-    this.onCancelled = []; // actions to execute when cancelled
-    this.onCancelled.push(() => (this.isCancellationRequested = true));
-    // expose a promise to the outside
-    this.promise = new Promise((resolve) => this.onCancelled.push(resolve));
-  }
-  cancel() {
-    this.onCancelled.forEach((x) => x);
-  }
-}
-
 export default {
+  Token,
   aggregateWords,
   groupByCountry,
   wrap,
@@ -169,5 +170,4 @@ export default {
   arraysEqual,
   groupBy,
   debounce,
-  Token,
 };

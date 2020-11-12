@@ -74,11 +74,18 @@ export class PaintingView {
       creatorLabel = painting.creatorLabel.trim(),
       creatorBirthPlace = painting.creatorBirthPlaceLabel.trim(),
       creatorCountry = painting.creatorCountry.trim(),
-      wikidataURL = painting.wikidataUrl.trim(),
-      apiEndpoint = painting.image.trim();
+      wikidataURL = painting.wikidataUrl.trim();
 
     // Get image metadata
-    const imgMeta = await getImgMeta(apiEndpoint, this.currentToken);
+    let apiEndpoint = painting.image.trim(),
+      imgMeta = { width: 1500, height: 1500 }; // size of placeholder img
+    try {
+      imgMeta = await getImgMeta(apiEndpoint, this.currentToken);
+    } catch (e) {
+      // image couldn't be downloaded
+      apiEndpoint = "src/assets/default-placeholder.png";
+      console.log(e);
+    }
 
     // clear the view in prep for new painting info
     this.displayG.selectAll("*").remove();
@@ -142,7 +149,9 @@ export class PaintingView {
     this.displayG
       .append("svg:image")
       .attr("id", "preview")
-      .attr("href", apiEndpoint)
+      .attr("href", () => {
+        return apiEndpoint;
+      })
       .attr("transform", `translate(${imageX}, ${imageY})`)
       .attr("width", imageWidth)
       .attr("height", imageHeight)

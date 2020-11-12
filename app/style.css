@@ -39,10 +39,27 @@
 .coll-info,
 .movement-info,
 .genre-info,
-.material-info {
+.material-info,
+.legend-text {
   font-family: "Source Sans Pro", serif;
   font-size: 10pt;
   font-size: 1vw;
+}
+
+.bubble-group .group-outline {
+  stroke: #ccc;
+  stroke-width: 1px;
+}
+
+.bubble-group:hover,
+.bubble-group:focus {
+  cursor: pointer;
+}
+
+.bubble-group:hover .group-outline,
+.bubble-group:focus .group-outline {
+  stroke: steelblue;
+  stroke-width: 3px;
 }
 
 /**
