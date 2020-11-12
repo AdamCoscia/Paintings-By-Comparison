@@ -2,6 +2,8 @@ import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
 import { aggregateWords } from "../models/util";
 
+const SPECIAL_ROOT_STRING = "No depicts information."
+
 /**
  * DepictsView object
  */
@@ -27,7 +29,7 @@ export class DepictsView {
   initialize(data) {
     // Get all words and add special root string
     let allWords = aggregateWords(data, "depicts").map((d) => d.word);
-    allWords.push("SPECIAL_ROOT_STRING");
+    allWords.push(SPECIAL_ROOT_STRING);
 
     // Map colors to all of the words
     for (const word of allWords) {
@@ -46,13 +48,13 @@ export class DepictsView {
   update(data) {
     // Get word counts plus special 0 count root string
     let wordCounts = aggregateWords(data, "depicts");
-    wordCounts.push({ word: "SPECIAL_ROOT_STRING", val: 0 });
+    wordCounts.push({ word: SPECIAL_ROOT_STRING, val: 0 });
 
     const root = d3
       .stratify()
       .id((d) => d.word)
       .parentId((d) =>
-        d.word == "SPECIAL_ROOT_STRING" ? null : "SPECIAL_ROOT_STRING"
+        d.word == SPECIAL_ROOT_STRING ? null : SPECIAL_ROOT_STRING
       )(wordCounts);
 
     root.sum((d) => d.val).sort((a, b) => b.value - a.value);
@@ -98,6 +100,7 @@ export class DepictsView {
       .data((d) => d)
       .join("text")
       .attr("text-anchor", "middle")
+      .attr('style', 'text-shadow: 0 0 2px black;')
       .text((d) => {
         if (d.x1 - d.x0 > 20) {
           return d.data.word.slice(0, (d.x1 - d.x0) / 5);

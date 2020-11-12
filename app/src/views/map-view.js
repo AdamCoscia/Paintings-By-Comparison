@@ -18,12 +18,6 @@ export class MapView {
     this.hoverCountry = null;
     this.mapG = svg.append("g").classed("map", true);
     this.mapTooltip = d3.select("body").append("div");
-    this.pathSelection = this.mapG
-      .selectAll(".countryPath")
-      .data(europeJson.features)
-      .join("g")
-      .classed("countryPath", true)
-      .append("path");
 
     // Create color scales from the country groupings
     const grouped = groupByCountry(allData);
@@ -100,16 +94,6 @@ export class MapView {
     // re-group countries
     this.grouped = groupByCountry(data);
 
-    // Set the clipping region
-    this.mapG
-      .append("clipPath")
-      .attr("id", "rect-clip")
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", this.viewWidth)
-      .attr("height", this.viewHeight);
-
     // Give the clipping region a border
     this.mapG
       .append("rect")
@@ -118,7 +102,30 @@ export class MapView {
       .attr("width", this.viewWidth)
       .attr("height", this.viewHeight)
       .attr("fill", "none")
-      .attr("stroke", "black");
+      .attr("stroke", "black")
+      .attr('style', 'pointer-events: visibleFill;')
+      .on('click', () => {
+        console.log('hello');
+        this.countriesToFilter = [];
+        self.updateFilters(onCountry);
+      })
+
+    // Set the clipping region
+    this.mapG
+      .append("clipPath")
+      .attr("id", "rect-clip")
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", this.viewWidth)
+      .attr("height", this.viewHeight)
+
+    this.pathSelection = this.mapG
+      .selectAll(".countryPath")
+      .data(europeJson.features)
+      .join("g")
+      .classed("countryPath", true)
+      .append("path");
 
     // draw the map
     this.pathSelection
