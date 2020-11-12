@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
 
 const PADDING_BOTTOM = 40;
+const PADDING_TOP = 40;
 
 const PADDING_LEFT = 40;
 
@@ -19,7 +20,7 @@ export class TimeView {
     this.viewHeight = HEIGHT / 3;
 
     this.mainViewWidth = this.viewWidth - PADDING_LEFT;
-    this.mainViewHeight = this.viewHeight - PADDING_BOTTOM;
+    this.mainViewHeight = this.viewHeight - PADDING_BOTTOM - PADDING_TOP;
 
     this.timeG = svg
       .append("g")
@@ -51,7 +52,7 @@ export class TimeView {
     this.timeG
       .append("g")
       .attr("style", "font-size: 8px;")
-      .attr("transform", `translate(${PADDING_LEFT - 10}, 0)`)
+      .attr("transform", `translate(${PADDING_LEFT - 10}, ${PADDING_TOP})`)
       .call(d3.axisLeft(graphedYScale));
 
   
@@ -67,7 +68,7 @@ export class TimeView {
     this.timeG
       .append("g")
       .attr("style", "font-size: 8px;")
-      .attr("transform", `translate(${PADDING_LEFT}, ${this.mainViewHeight + 10})`)
+      .attr("transform", `translate(${PADDING_LEFT}, ${this.mainViewHeight + 10 + PADDING_TOP})`)
       .call(d3.axisBottom(this.xScale));
   }
 
@@ -111,12 +112,12 @@ export class TimeView {
       .append("g")
       .classed("brush", true)
       .call(brush)
-      .attr("transform", `translate(${PADDING_LEFT}, ${this.viewHeight})`);
+      .attr("transform", `translate(${PADDING_LEFT}, ${this.viewHeight + PADDING_TOP})`);
 
     this.histG = this.timeG
       .append("g")
       .classed("histogram", true)
-      .attr("transform", `translate(${PADDING_LEFT}, 0)`);
+      .attr("transform", `translate(${PADDING_LEFT}, ${PADDING_TOP})`);
 
     self.update(data);
   }
@@ -146,5 +147,16 @@ export class TimeView {
       .attr("width", width)
       .attr("fill", d3.interpolateBlues(0.5))
       .attr("stroke", "black");
+
+    this.histG
+      .selectAll("text")
+      .data(bins)
+      .join("text")
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 10)
+      .text((d) => d.length.toString())
+      .attr('x', d => x(d) + width(d) / 2)
+      .attr('y', d => y(d) - 10)
+
   }
 }
