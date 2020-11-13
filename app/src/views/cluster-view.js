@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-import { arraysEqual} from "../models/util";
+import { arraysEqual } from "../models/util";
 
 /**
  * ClusterView object
@@ -17,6 +17,7 @@ export class ClusterView {
     this.filter = null; // filter function
     this.attrToFilter = "locLabel"; // attribute to filter on
     this.groupsToFilter = []; // attributes to filter
+    this.colorGroup = null; // color scale for groups
     this.clusterG = svg
       .append("g")
       .classed("cluster", true)
@@ -55,15 +56,10 @@ export class ClusterView {
   }
 
   /**
-   * Dynamic Clustered Bubbles in d3
-   * Modified from the source.
-   * Source: https://observablehq.com/@mbostock/clustered-bubbles
+   * Groups the data for packing and plotting and sets the color scheme
    */
-  drawClusters(data) {
-    const self = this;
-
-    // Group the data
-    const groups = d3.group(
+  groupByAttr(data) {
+    return d3.group(
       Array.from({ length: data.length }, (_, i) => ({
         id: i,
         group: data[i][this.attrToFilter],
@@ -71,10 +67,26 @@ export class ClusterView {
       })),
       (d) => d.group
     );
+  }
 
-    // Create an ordinal color scale and legend from the group keys
-    const keys = Array.from(groups.keys());
-    const color = d3.scaleOrdinal(keys, d3.schemeCategory10);
+  /**
+   * Dynamic Clustered Bubbles in d3
+   * Modified from the source.
+   * Source: https://observablehq.com/@mbostock/clustered-bubbles
+   */
+  drawClusters(grouped, keys) {
+    const self = this;
+
+    const hierarchy = d3.hierarchy({
+        children: Array.from(grouped, ([, children]) => ({ children })),
+      }),
+      pack = () =>
+        d3
+          .pack()
+          .size([this.viewWidth, (3 * this.viewHeight) / 4])
+          .padding(1)(hierarchy.sum((d) => d.value)),
+      root = pack();
+
     const step = this.viewHeight / 4 / keys.length;
     let legend = (svg) => {
       const g = svg
@@ -84,8 +96,8 @@ export class ClusterView {
         .attr("font-size", 10)
         .selectAll("g")
         .data(
-          color.domain().sort(function (a, b) {
-            return groups.get(b).length - groups.get(a).length;
+          keys.sort(function (a, b) {
+            return grouped.get(b).length - grouped.get(a).length;
           })
         )
         .join("g")
@@ -94,28 +106,14 @@ export class ClusterView {
         .attr("x", -15) // constant x
         .attr("width", 15) // constant width
         .attr("height", step - 4) // fill 1/4 * 1/nkeys of the viewHeight
-        .attr("fill", color);
+        .attr("fill", (d) => self.colorGroup(d));
       g.append("text")
         .attr("class", "legend-text")
         .attr("x", -20) // constant x separation
         .attr("y", step / 2) // variable y
         .attr("dy", "0.15em")
-        .text((d) => `${d} (${groups.get(d).length})`);
+        .text((d) => `${d} (${grouped.get(d).length})`);
     };
-
-    // Create hierarchy for circle packing
-    const hierarchy = d3.hierarchy({
-      children: Array.from(groups, ([, children]) => ({ children })),
-    });
-
-    // Pack the data
-    const pack = () =>
-      d3
-        .pack()
-        .size([this.viewWidth, (3 * this.viewHeight) / 4])
-        .padding(1)(hierarchy.sum((d) => d.value));
-
-    const root = pack();
 
     // clear the view in prep for new drawing
     this.navG.selectAll("*").remove();
@@ -131,6 +129,7 @@ export class ClusterView {
       .join("g")
       .attr("class", "bubble-group")
       .attr("fill", (d) =>
+        // if switched on, darken the inside, otherwise lighten it again
         self.groupsToFilter.includes(d.leaves()[0].data.group)
           ? "#ccc"
           : "white"
@@ -139,8 +138,10 @@ export class ClusterView {
         const group = d.leaves()[0].data.group;
         self.toggle(group);
         // if switched on, darken the inside, otherwise lighten it again
-        const color = self.groupsToFilter.includes(group) ? "#ccc" : "white";
-        d3.select(this).attr("fill", color);
+        d3.select(this).attr(
+          "fill",
+          self.groupsToFilter.includes(group) ? "#ccc" : "white"
+        );
         self.updateFilters();
       });
 
@@ -162,7 +163,7 @@ export class ClusterView {
       .attr("cx", (d) => d.x)
       .attr("cy", (d) => d.y)
       .attr("r", (d) => d.r)
-      .attr("fill", (d) => color(d.data.group))
+      .attr("fill", (d) => self.colorGroup(d.data.group))
       .attr("opacity", 0.8);
   }
 
@@ -171,7 +172,10 @@ export class ClusterView {
    */
   initialize(data, onGroup) {
     this.filter = onGroup;
-    this.drawClusters(data);
+    const grouped = this.groupByAttr(data),
+      keys = Array.from(grouped.keys());
+    this.colorGroup = d3.scaleOrdinal(keys, d3.schemeCategory10);
+    this.drawClusters(grouped, keys);
   }
 
   /**
@@ -186,7 +190,9 @@ export class ClusterView {
         // Update data set and draw new clusters
         this.currentData = data;
         this.npaintings = data.length;
-        this.drawClusters(data);
+        const grouped = this.groupByAttr(data),
+          keys = Array.from(grouped.keys());
+        this.drawClusters(grouped, keys);
       }
       // make the display info visible again (if it wasn't before)
       this.clusterG.attr("display", "block");

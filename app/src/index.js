@@ -31,7 +31,8 @@ async function main() {
     .select("body")
     .append("svg")
     .attr("height", HEIGHT)
-    .attr("width", WIDTH);
+    .attr("width", WIDTH)
+    .attr("transform", "translate(5,5)");
 
   const mapView = new MapView(svg, data),
     timeView = new TimeView(svg, data),

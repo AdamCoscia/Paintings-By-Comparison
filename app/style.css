@@ -57,6 +57,21 @@
   stroke-width: 3px;
 }
 
+.axis-label {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 12pt;
+  font-size: 1vw;
+}
+
+.y-axis text,
+.x-axis text,
+.bar-label {
+  font-family: "Roboto", serif;
+  font-size: 8pt;
+  font-size: 0.8vw;
+}
+
 /**
  * CSS for modal showing pop-up of painting.
  * Modified from the source.

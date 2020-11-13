@@ -22,13 +22,13 @@ export class MapView {
     // Create color scales from the country groupings
     const grouped = groupByCountry(allData);
     this.colorScale = d3
-      .scaleSequential(d3.interpolateBlues)
-      .domain(d3.extent(Object.entries(grouped), (x) => x[1]))
-      .range([d3.interpolateBlues(0.3), d3.interpolateBlues(1)]);
-    this.selectedColorScale = d3
       .scaleSequential(d3.interpolateGreens)
       .domain(d3.extent(Object.entries(grouped), (x) => x[1]))
       .range([d3.interpolateGreens(0.3), d3.interpolateGreens(1)]);
+    this.selectedColorScale = d3
+      .scaleSequential(d3.interpolateOranges)
+      .domain(d3.extent(Object.entries(grouped), (x) => x[1]))
+      .range([d3.interpolateOranges(0.3), d3.interpolateOranges(1)]);
 
     // Create the map projection path generator
     const projection = d3
@@ -73,7 +73,7 @@ export class MapView {
    * Returns color of the country
    */
   color(d) {
-    let countryColor = "#eee"; // default
+    let countryColor = "#FFF2AF"; // default
     const country = d.properties.name;
     const selected =
       this.countriesToFilter.includes(country) || this.hoverCountry == country;
@@ -101,14 +101,15 @@ export class MapView {
       .attr("y", 0)
       .attr("width", this.viewWidth)
       .attr("height", this.viewHeight)
-      .attr("fill", "none")
+      .attr("fill", "#AADAFF")
+      .attr("rx", 10)
       // .attr("stroke", "black")
-      .attr('style', 'pointer-events: visibleFill;')
-      .on('click', () => {
-        console.log('hello');
+      .attr("style", "pointer-events: visibleFill;")
+      .on("click", () => {
+        console.log("hello");
         this.countriesToFilter = [];
         self.updateFilters(onCountry);
-      })
+      });
 
     // Set the clipping region
     this.mapG
@@ -118,7 +119,7 @@ export class MapView {
       .attr("x", 0)
       .attr("y", 0)
       .attr("width", this.viewWidth)
-      .attr("height", this.viewHeight)
+      .attr("height", this.viewHeight);
 
     this.pathSelection = this.mapG
       .selectAll(".countryPath")
