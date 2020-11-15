@@ -1,6 +1,5 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-import { groupByCountry } from "../models/util";
 import europeJson from "../models/europe.json";
 
 /**
@@ -154,7 +153,7 @@ export class MapView {
           "style",
           `position: absolute; 
            top: ${e.clientY}px; 
-           left: ${e.clientX + 15}px; 
+           left: ${e.clientX + 12}px; 
            background-color: #fff;`
         );
         if (d.properties.name !== self.hoverCountry) {
@@ -186,4 +185,19 @@ export class MapView {
     this.grouped = groupByCountry(data); // for the hover elements
     this.pathSelection.attr("fill", this.color.bind(this));
   }
+}
+
+/**
+ * Number of paintings by country.
+ */
+function groupByCountry(data) {
+  const ret = {};
+  for (const row of data) {
+    if (ret[row.creatorCountry]) {
+      ret[row.creatorCountry] += 1;
+    } else {
+      ret[row.creatorCountry] = 1;
+    }
+  }
+  return ret;
 }

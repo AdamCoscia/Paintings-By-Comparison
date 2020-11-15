@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
-import { wrap, isBlank, getImgMeta, arraysEqual, Token } from "../models/util";
+import { wrap, isBlank, getImgMeta, arraysEqual } from "../models/util";
 
 /**
  * PaintingView object
@@ -14,7 +14,6 @@ export class PaintingView {
     this.currentData = allData; // track current data set
     this.npaintings = allData.length; // track number of paintings
     this.paintingNumber = 0; // where in the dataset to look for a painting
-    this.currentToken = null;
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT;
     this.paintingG = svg
@@ -66,7 +65,7 @@ export class PaintingView {
     const painting = this.currentData[this.paintingNumber],
       artworkLabel = painting.artworkLabel.trim(),
       yearLabel = painting.year,
-      locationLabel = painting.locLabel.trim(),
+      locationLabel = painting.locLabel,
       collections = painting.collectionLabel,
       movements = painting.movement,
       genres = painting.genreLabel,
@@ -80,7 +79,7 @@ export class PaintingView {
     let apiEndpoint = painting.image.trim(),
       imgMeta = { width: 1500, height: 1500 }; // size of placeholder img
     try {
-      imgMeta = await getImgMeta(apiEndpoint, this.currentToken);
+      imgMeta = await getImgMeta(apiEndpoint);
     } catch (e) {
       // image couldn't be downloaded
       apiEndpoint = "src/assets/default-placeholder.png";
@@ -256,8 +255,6 @@ export class PaintingView {
           self.displayG.style("display") == "block"
         ) {
           --self.paintingNumber;
-          self.currentToken.cancel();
-          self.currentToken = new Token();
           self.loadPainting(); // attempt to load next painting
         }
       })
@@ -293,8 +290,6 @@ export class PaintingView {
           self.displayG.style("display") == "block"
         ) {
           ++self.paintingNumber;
-          self.currentToken.cancel();
-          self.currentToken = new Token();
           self.loadPainting(); // attempt to load next painting
         }
       })
@@ -307,7 +302,6 @@ export class PaintingView {
         rightRect.transition().duration(100).style("opacity", 0);
       });
 
-    this.currentToken = new Token();
     this.loadPainting(); // attempt to load next painting
   }
 
@@ -325,8 +319,6 @@ export class PaintingView {
         this.currentData = data;
         this.npaintings = data.length;
         this.paintingNumber = 0;
-        this.currentToken.cancel();
-        this.currentToken = new Token();
         this.loadPainting(); // attempt to load next painting
       } else {
         // update the painting counter (if it wasn't before)

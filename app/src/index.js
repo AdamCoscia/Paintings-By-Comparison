@@ -19,6 +19,7 @@ async function main() {
   data.forEach((d) => {
     d.year = parseInt(d.year);
     d.depicts = d.depicts.split(";").map((x) => x.trim());
+    d.locLabel = d.locLabel.split(";").map((x) => x.trim());
     d.collectionLabel = d.collectionLabel.split(";").map((x) => x.trim());
     d.movement = d.movement.split(";").map((x) => x.trim());
     d.genreLabel = d.genreLabel.split(";").map((x) => x.trim());

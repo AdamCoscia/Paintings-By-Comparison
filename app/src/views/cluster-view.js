@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { HEIGHT, WIDTH } from "../models/constants";
-import { arraysEqual } from "../models/util";
+import { HEIGHT, WIDTH, scheme26 } from "../models/constants";
+import { arraysEqual, aggregateWords } from "../models/util";
 
 /**
  * ClusterView object
@@ -15,9 +15,10 @@ export class ClusterView {
     this.viewWidth = WIDTH / 2;
     this.viewHeight = HEIGHT;
     this.filter = null; // filter function
-    this.attrToFilter = "locLabel"; // attribute to filter on
-    this.groupsToFilter = []; // attributes to filter
-    this.colorGroup = null; // color scale for groups
+    this.attrToFilter = "materialLabel"; // attribute to filter on
+    this.groupsToFilter = new Map(); // alias map for attributes to filter
+    this.colorGroup = {}; // color mapping for groups
+    this.otherKeys = []; // keys contained in "other" group
     this.clusterG = svg
       .append("g")
       .classed("cluster", true)
@@ -31,13 +32,26 @@ export class ClusterView {
   }
 
   /**
-   * Updates groups filtered list for onGroup filter
+   * Updates groups filtered alias map for onGroup filter
    */
-  toggle(group) {
-    if (this.groupsToFilter.includes(group)) {
-      this.groupsToFilter = this.groupsToFilter.filter((x) => x != group);
+  toggle(group, other) {
+    if (other) {
+      // We are toggling the "other" group
+      if (this.groupsToFilter.get("other") === undefined) {
+        // "other" not in groupsToFilter, add it
+        this.groupsToFilter.set("other", this.otherKeys);
+        this.otherKeys.forEach((key) => this.groupsToFilter.set(key, key));
+      } else {
+        // "other" already in groupsToFilter, so delete it
+        this.groupsToFilter.delete("other");
+        this.otherKeys.forEach((key) => this.groupsToFilter.delete(key));
+      }
+    } else if (this.groupsToFilter.has(group)) {
+      // group exists in alias map so delete it
+      this.groupsToFilter.delete(group);
     } else {
-      this.groupsToFilter.push(group);
+      // otherwise, add it to the alias map
+      this.groupsToFilter.set(group, group);
     }
   }
 
@@ -45,12 +59,16 @@ export class ClusterView {
    * Updates onGroup filter when groups are clicked
    */
   updateFilters() {
-    if (this.groupsToFilter.length == 0) {
+    if (this.groupsToFilter.size == 0) {
       this.filter(null);
     } else {
       this.filter((d) => {
-        let groups = this.groupsToFilter;
-        return groups.includes(d[this.attrToFilter]);
+        // take the intersection of groups and d[this.attrToFilter]
+        let groups = Array.from(this.groupsToFilter.keys());
+        return (
+          groups.filter((value) => d[this.attrToFilter].includes(value))
+            .length > 0
+        );
       });
     }
   }
@@ -59,14 +77,48 @@ export class ClusterView {
    * Groups the data for packing and plotting and sets the color scheme
    */
   groupByAttr(data) {
-    return d3.group(
-      Array.from({ length: data.length }, (_, i) => ({
-        id: i,
-        group: data[i][this.attrToFilter],
-        value: Math.floor(Math.random() * 2) + 1,
-      })),
-      (d) => d.group
+    // each painting creates map for each word in their attribute list
+    let paintings = [];
+    data.forEach((row, i) =>
+      row[this.attrToFilter].forEach((word) =>
+        paintings.push({
+          id: i,
+          group: word,
+          other: false,
+          value: Math.floor(Math.random() * 2) + 1,
+        })
+      )
     );
+
+    // Group the paintings by the group value of each entry
+    let groupMap = d3.group(paintings, (d) => d.group),
+      others = [],
+      otherKeys = [];
+
+    // Try to reduce the number of groups
+    groupMap.forEach((value, key) => {
+      if (value.length <= data.length / 20) {
+        // set 'other' in each value to true
+        const otherValues = value.map((x) => {
+          x.other = true;
+          return x;
+        });
+        others.push(...otherValues);
+        otherKeys.push(key); // keys to remove from mapping
+      }
+    });
+
+    // Store the otherKeys in the class attr
+    this.otherKeys = otherKeys;
+
+    // If <20 value groups were found, create an "other" mapping and remove
+    // keys that go into the "other" group
+    if (others.length > 0) {
+      groupMap.set("others", others);
+      otherKeys.forEach((key) => groupMap.delete(key));
+    }
+
+    return groupMap;
   }
 
   /**
@@ -75,9 +127,9 @@ export class ClusterView {
    * Source: https://observablehq.com/@mbostock/clustered-bubbles
    */
   drawClusters(grouped, keys) {
-    const self = this;
-
-    const hierarchy = d3.hierarchy({
+    const self = this,
+      step = this.viewHeight / 4 / keys.length,
+      hierarchy = d3.hierarchy({
         children: Array.from(grouped, ([, children]) => ({ children })),
       }),
       pack = () =>
@@ -87,7 +139,7 @@ export class ClusterView {
           .padding(1)(hierarchy.sum((d) => d.value)),
       root = pack();
 
-    const step = this.viewHeight / 4 / keys.length;
+    // Create legend function
     let legend = (svg) => {
       const g = svg
         .attr("transform", `translate(${this.viewWidth},0)`)
@@ -96,6 +148,7 @@ export class ClusterView {
         .attr("font-size", 10)
         .selectAll("g")
         .data(
+          // sort legend by size of group!
           keys.sort(function (a, b) {
             return grouped.get(b).length - grouped.get(a).length;
           })
@@ -106,7 +159,7 @@ export class ClusterView {
         .attr("x", -15) // constant x
         .attr("width", 15) // constant width
         .attr("height", step - 4) // fill 1/4 * 1/nkeys of the viewHeight
-        .attr("fill", (d) => self.colorGroup(d));
+        .attr("fill", (d) => self.colorGroup[d]);
       g.append("text")
         .attr("class", "legend-text")
         .attr("x", -20) // constant x separation
@@ -116,8 +169,18 @@ export class ClusterView {
     };
 
     // clear navigation and draw legend
-    this.navG.selectAll("*").transition().style("opacity", 0).duration(50).remove();
-    this.navG.append("g").call(legend).transition().style("opacity", 1).duration(50);
+    this.navG
+      .selectAll("*")
+      .transition()
+      .style("opacity", 0)
+      .duration(50)
+      .remove();
+    this.navG
+      .append("g")
+      .call(legend)
+      .transition()
+      .style("opacity", 1)
+      .duration(50);
 
     // clear bubbles and draw new groups
     this.bubblesG.selectAll("*").remove();
@@ -128,20 +191,26 @@ export class ClusterView {
       .data(root.descendants().filter((d) => d.height === 1))
       .join("g")
       .attr("class", "bubble-group")
-      .attr("fill", (d) =>
+      .attr("fill", function (d) {
         // if switched on, darken the inside, otherwise lighten it again
-        self.groupsToFilter.includes(d.leaves()[0].data.group)
-          ? "#ccc"
-          : "white"
-      )
+        const leaf = d.leaves()[0].data,
+          other = leaf.other;
+        let group = leaf.group;
+        if (other) group = "other"; // color entire "group" bubble
+        return self.groupsToFilter.get(group) !== undefined ? "#ccc" : "white";
+      })
       .on("click", function (_, d) {
-        const group = d.leaves()[0].data.group;
-        self.toggle(group);
+        const leaf = d.leaves()[0].data,
+          other = leaf.other;
+        let group = leaf.group;
+        // toggle the group
+        self.toggle(group, other);
         // if switched on, darken the inside, otherwise lighten it again
-        d3.select(this).attr(
-          "fill",
-          self.groupsToFilter.includes(group) ? "#ccc" : "white"
+        if (other) group = "other";
+        d3.select(this).attr("fill", () =>
+          self.groupsToFilter.get(group) !== undefined ? "#ccc" : "white"
         );
+        // update the filters
         self.updateFilters();
       });
 
@@ -163,7 +232,7 @@ export class ClusterView {
       .attr("cx", (d) => d.x)
       .attr("cy", (d) => d.y)
       .attr("r", (d) => d.r)
-      .attr("fill", (d) => self.colorGroup(d.data.group))
+      .attr("fill", (d) => self.colorGroup[d.data.group])
       .attr("opacity", 0.8);
   }
 
@@ -172,9 +241,18 @@ export class ClusterView {
    */
   initialize(data, onGroup) {
     this.filter = onGroup;
+
+    // Map colors to all of the group keys
+    const words = aggregateWords(data, this.attrToFilter),
+      getColor = d3.scaleOrdinal(scheme26);
+    words.forEach((d) => (this.colorGroup[d.word] = getColor(d.word)));
+    this.colorGroup["others"] = "#ccc";
+
+    console.log(words);
+
+    // draw clusters
     const grouped = this.groupByAttr(data),
       keys = Array.from(grouped.keys());
-    this.colorGroup = d3.scaleOrdinal(keys, d3.schemeCategory10);
     this.drawClusters(grouped, keys);
   }
 

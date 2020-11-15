@@ -1,23 +1,8 @@
 import * as d3 from "d3";
 
 /**
- * Source: https://stackoverflow.com/a/37642079
- */
-export class Token {
-  constructor(fn) {
-    this.isCancellationRequested = false;
-    this.onCancelled = []; // actions to execute when cancelled
-    this.onCancelled.push(() => (this.isCancellationRequested = true));
-    // expose a promise to the outside
-    this.promise = new Promise((resolve) => this.onCancelled.push(resolve));
-  }
-  cancel() {
-    this.onCancelled.forEach((x) => x);
-  }
-}
-
-/**
  * Word counter for an attribute in the dataset.
+ * Filters out any attribute with only 1 count.
  * Author: Vijay Marupudi
  */
 export function aggregateWords(data, attr) {
@@ -27,29 +12,11 @@ export function aggregateWords(data, attr) {
       words[word] ? (words[word] += 1) : (words[word] = 1);
     });
   });
-  const wordsArray = Object.entries(words)
-    .map(([word, val]) => ({
-      word,
-      val,
-    }))
-    .filter((d) => d.val != 1);
+  const wordsArray = Object.entries(words).map(([word, val]) => ({
+    word,
+    val,
+  }));
   return wordsArray;
-}
-
-/**
- * Number of paintings by country.
- * Author: Vijay Marupudi
- */
-export function groupByCountry(data) {
-  const ret = {};
-  for (const row of data) {
-    if (ret[row.creatorCountry]) {
-      ret[row.creatorCountry] += 1;
-    } else {
-      ret[row.creatorCountry] = 1;
-    }
-  }
-  return ret;
 }
 
 /**
@@ -97,18 +64,12 @@ export function isBlank(str) {
  * Get metadata from url with image asynchronously.
  * Source: https://stackoverflow.com/a/51063852.
  */
-export function getImgMeta(url, token) {
+export function getImgMeta(url) {
   return new Promise((resolve, reject) => {
     let img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => reject();
     img.src = url;
-    token.promise.then((x) => {
-      try {
-        img.src = ""; // Setting src to empty string will interrupt current download
-      } catch (e) {} // ignore abort errors
-      reject(new Error("cancelled"));
-    });
   });
 }
 
@@ -124,17 +85,6 @@ export function arraysEqual(a, b) {
     if (a[i] !== b[i]) return false;
   }
   return true;
-}
-
-/**
- * Groups objects in an array.
- * Source: https://stackoverflow.com/a/34890276.
- */
-export function groupBy(xs, key) {
-  return xs.reduce(function (rv, x) {
-    (rv[x[key]] = rv[x[key]] || []).push(x);
-    return rv;
-  }, {});
 }
 
 /**
@@ -161,13 +111,10 @@ export function debounce(func, wait, immediate) {
 }
 
 export default {
-  Token,
   aggregateWords,
-  groupByCountry,
   wrap,
   isBlank,
   getImgMeta,
   arraysEqual,
-  groupBy,
   debounce,
 };

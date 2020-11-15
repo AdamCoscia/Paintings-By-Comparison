@@ -31,7 +31,9 @@ export class DepictsView {
    */
   initialize(data) {
     // Get all words and add special root string
-    let allWords = aggregateWords(data, "depicts").map((d) => d.word);
+    let allWords = aggregateWords(data, "depicts")
+      .filter((d) => d.val != 1)
+      .map((d) => d.word);
     allWords.push(SPECIAL_ROOT_STRING);
 
     // Map colors to all of the words
@@ -50,7 +52,7 @@ export class DepictsView {
    */
   update(data) {
     // Get word counts plus special 0 count root string
-    let wordCounts = aggregateWords(data, "depicts");
+    let wordCounts = aggregateWords(data, "depicts").filter((d) => d.val != 1);
     wordCounts.push({ word: SPECIAL_ROOT_STRING, val: 0 });
 
     const root = d3
