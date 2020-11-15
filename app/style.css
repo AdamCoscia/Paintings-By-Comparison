@@ -4,6 +4,10 @@
   cursor: pointer;
 }
 
+body {
+  overflow: hidden;
+}
+
 .counter {
   font-family: "Roboto", serif;
   font-size: 11pt;
@@ -40,10 +44,16 @@
 .movement-info,
 .genre-info,
 .material-info,
-.legend-text {
+.legend-text,
+.depicts-tooltip,
+.map-tooltip {
   font-family: "Source Sans Pro", serif;
   font-size: 10pt;
   font-size: 1vw;
+}
+
+.depicts-words {
+  font-family: "Source Sans Pro", serif;
 }
 
 .bubble-group:hover,
@@ -124,9 +134,10 @@
   font-size: 3vw;
 }
 
+.link:hover,
+.link:focus,
 .close:hover,
 .close:focus {
   color: black;
-  text-decoration: none;
   cursor: pointer;
 }

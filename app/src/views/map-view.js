@@ -17,7 +17,10 @@ export class MapView {
     this.countriesToFilter = [];
     this.hoverCountry = null;
     this.mapG = svg.append("g").classed("map", true);
-    this.mapTooltip = d3.select("body").append("div");
+    this.mapTooltip = d3
+      .select("body")
+      .append("div")
+      .classed("map-tooltip", true);
 
     // Create color scales from the country groupings
     const grouped = groupByCountry(allData);
@@ -34,7 +37,7 @@ export class MapView {
     const projection = d3
       .geoMercator()
       .center([2.6, 46]) // [LAT, LON]
-      .scale(0.1 * WIDTH + 90) // zoom in/out, default 150
+      .scale(0.17 * WIDTH) // zoom in/out, default 150
       .translate([0.1 * WIDTH, 0.24 * HEIGHT]); // translate center to [x, y]
     this.pathGenerator = d3.geoPath(projection);
   }
@@ -103,10 +106,8 @@ export class MapView {
       .attr("height", this.viewHeight)
       .attr("fill", "#AADAFF")
       .attr("rx", 10)
-      // .attr("stroke", "black")
       .attr("style", "pointer-events: visibleFill;")
       .on("click", () => {
-        console.log("hello");
         this.countriesToFilter = [];
         self.updateFilters(onCountry);
       });
@@ -119,8 +120,10 @@ export class MapView {
       .attr("x", 0)
       .attr("y", 0)
       .attr("width", this.viewWidth)
-      .attr("height", this.viewHeight);
+      .attr("height", this.viewHeight)
+      .attr("rx", 10);
 
+    // get the json path and append it
     this.pathSelection = this.mapG
       .selectAll(".countryPath")
       .data(europeJson.features)
@@ -136,7 +139,7 @@ export class MapView {
       .attr("d", self.pathGenerator)
       .attr("stroke", "black")
       .on("mouseenter", function (_, d) {
-        d3.select(this).attr("fill", "yellow");
+        d3.select(this).attr("fill", self.color(d));
         let base = d.properties.name;
         if (self.grouped[d.properties.name]) {
           base += ": " + self.grouped[d.properties.name].toString();
@@ -146,15 +149,18 @@ export class MapView {
         self.updateFilters(onCountry);
       })
       .on("mousemove", function (e, d) {
-        d3.select(this).attr("fill", "yellow");
+        d3.select(this).attr("fill", self.color(d));
         self.mapTooltip.attr(
           "style",
-          `position: absolute; top: ${e.clientY + 10}px; left: ${
-            e.clientX
-          }px; background-color: #fff;`
+          `position: absolute; 
+           top: ${e.clientY}px; 
+           left: ${e.clientX + 15}px; 
+           background-color: #fff;`
         );
-        self.hoverCountry = d.properties.name;
-        self.updateFilters(onCountry);
+        if (d.properties.name !== self.hoverCountry) {
+          self.hoverCountry = d.properties.name;
+          self.updateFilters(onCountry);
+        }
       })
       .on("mouseleave", function (_, d) {
         d3.select(this).attr("fill", self.color(d));

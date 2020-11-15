@@ -115,12 +115,12 @@ export class ClusterView {
         .text((d) => `${d} (${grouped.get(d).length})`);
     };
 
-    // clear the view in prep for new drawing
-    this.navG.selectAll("*").remove();
-    this.bubblesG.selectAll("*").remove();
+    // clear navigation and draw legend
+    this.navG.selectAll("*").transition().style("opacity", 0).duration(50).remove();
+    this.navG.append("g").call(legend).transition().style("opacity", 1).duration(50);
 
-    // Draw the legend
-    this.navG.append("g").call(legend);
+    // clear bubbles and draw new groups
+    this.bubblesG.selectAll("*").remove();
 
     // Create groups for each bubble group
     const bubbleGroups = this.bubblesG

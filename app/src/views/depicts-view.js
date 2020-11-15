@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
 import { aggregateWords } from "../models/util";
 
-const SPECIAL_ROOT_STRING = "No depicts information."
+const SPECIAL_ROOT_STRING = "No common depicted words!";
 
 /**
  * DepictsView object
@@ -16,7 +16,10 @@ export class DepictsView {
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT / 3;
     this.wordColors = {};
-    this.depictsTooltip = d3.select("body").append("div");
+    this.depictsTooltip = d3
+      .select("body")
+      .append("div")
+      .classed("depicts-tooltip", true);
     this.depictsG = svg
       .append("g")
       .classed("depicts", true)
@@ -64,22 +67,20 @@ export class DepictsView {
     const self = this;
 
     const individualG = this.depictsG
-      .selectAll(".depictsIndG")
+      .selectAll("g")
       .data(tm)
       .join("g")
-      .classed("depictsIndG", true)
-      .attr("transform", (d) => `translate(${d.x0}, ${d.y0})`);
-
-    individualG
+      .attr("transform", (d) => `translate(${d.x0}, ${d.y0})`)
       .on("mouseenter", function (_, d) {
         self.depictsTooltip.text(d.data.word);
       })
       .on("mousemove", function (e) {
         self.depictsTooltip.attr(
           "style",
-          `position: absolute; top: ${e.clientY + 10}px; left: ${
-            e.clientX
-          }px; background-color: #fff;`
+          `position: absolute; 
+           top: ${e.clientY - 10}px; 
+           left: ${e.clientX + 10}px; 
+           background-color: #fff;`
         );
       })
       .on("mouseleave", function () {
@@ -90,6 +91,7 @@ export class DepictsView {
       .selectAll("rect")
       .data((d) => d)
       .join("rect")
+      .attr("cursor", "help")
       .attr("width", (d) => d.x1 - d.x0)
       .attr("height", (d) => d.y1 - d.y0)
       .attr("stroke", "black")
@@ -99,13 +101,13 @@ export class DepictsView {
       .selectAll("text")
       .data((d) => d)
       .join("text")
+      .attr("class", "depicts-words")
       .attr("text-anchor", "middle")
-      .attr('style', 'text-shadow: 0 0 2px black;')
+      .attr("style", "text-shadow: 0 0 2px black;")
       .text((d) => {
-        if (d.x1 - d.x0 > 20) {
-          return d.data.word.slice(0, (d.x1 - d.x0) / 5);
-        }
-        return null;
+        return d.x1 - d.x0 > 20
+          ? d.data.word.slice(0, (d.x1 - d.x0) / 5)
+          : null;
       })
       .attr("x", (d) => (d.x1 - d.x0) / 2)
       .attr("y", (d) => (d.y1 - d.y0) / 2)

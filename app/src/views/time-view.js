@@ -1,10 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH } from "../models/constants";
 
-const PADDING_BOTTOM = 30;
-const PADDING_TOP = 30;
-const PADDING_LEFT = 40;
-
 /**
  * TimeView object
  */
@@ -17,8 +13,14 @@ export class TimeView {
     this.allData = allData;
     this.viewWidth = WIDTH / 4;
     this.viewHeight = HEIGHT / 3;
-    this.mainViewWidth = this.viewWidth - PADDING_LEFT;
-    this.mainViewHeight = this.viewHeight - PADDING_BOTTOM - PADDING_TOP;
+    this.padding = {
+      bottom: this.viewHeight / 10 + 10,
+      top: this.viewHeight / 10 + 10,
+      left: this.viewWidth / 10 + 10,
+    };
+    this.mainViewWidth = this.viewWidth - this.padding.left;
+    this.mainViewHeight =
+      this.viewHeight - this.padding.bottom - this.padding.top;
 
     this.timeG = svg
       .append("g")
@@ -55,19 +57,19 @@ export class TimeView {
       .attr("class", "x-axis")
       .attr(
         "transform",
-        `translate(${PADDING_LEFT}, ${this.mainViewHeight + 10 + PADDING_TOP})`
+        `translate(
+          ${self.padding.left}, ${self.mainViewHeight + self.padding.top + 10}
+         )`
       )
-      .call(d3.axisBottom(this.xScale).tickFormat(d3.format("d")));
+      .call(d3.axisBottom(this.xScale).tickFormat(d3.format("d")).tickSize(5));
 
     // Add X axis label
     this.timeG
       .append("text")
       .attr("class", "axis-label")
       .attr("text-anchor", "end")
-      // .attr("x", this.mainViewWidth / 2 + PADDING_LEFT)
-      // .attr("y", this.viewHeight - 5)
-      .attr("x", PADDING_LEFT - 5)
-      .attr("y", this.mainViewHeight + 22 + PADDING_TOP)
+      .attr("x", self.padding.left - 5)
+      .attr("y", this.mainViewHeight + self.padding.top * 1.7)
       .text("Year");
 
     // remove every other x axis tick label
@@ -85,18 +87,21 @@ export class TimeView {
     this.timeG
       .append("g")
       .attr("class", "y-axis")
-      .attr("transform", `translate(${PADDING_LEFT - 10}, ${PADDING_TOP})`)
-      .call(d3.axisLeft(graphedYScale));
+      .attr(
+        "transform",
+        `translate(${self.padding.left - 10}, ${self.padding.top})`
+      )
+      .call(d3.axisLeft(graphedYScale).tickSize(5));
 
     // Add Y axis label
     this.timeG
       .append("text")
       .attr("class", "axis-label")
       .attr("text-anchor", "end")
-      // .attr("x", this.mainViewWidth / 2 + PADDING_LEFT)
+      // .attr("x", this.mainViewWidth / 2 + self.padding.left)
       // .attr("y", this.viewHeight - 5)
-      .attr("x", PADDING_LEFT - 10)
-      .attr("y", PADDING_TOP - 8)
+      .attr("x", self.padding.left - 10)
+      .attr("y", self.padding.top - 8)
       .text("Total");
 
     // create the brushing function
@@ -137,13 +142,16 @@ export class TimeView {
       .call(brush)
       .attr(
         "transform",
-        `translate(${PADDING_LEFT}, ${this.viewHeight + PADDING_TOP})`
+        `translate(${self.padding.left}, ${this.viewHeight + self.padding.top})`
       );
 
     this.histG = this.timeG
       .append("g")
       .classed("histogram", true)
-      .attr("transform", `translate(${PADDING_LEFT}, ${PADDING_TOP})`);
+      .attr(
+        "transform",
+        `translate(${self.padding.left}, ${self.padding.top})`
+      );
 
     self.update(data);
   }
@@ -167,10 +175,12 @@ export class TimeView {
       .selectAll("rect")
       .data(bins)
       .join("rect")
+      .transition()
       .attr("x", x)
       .attr("y", y)
       .attr("height", binHeight)
       .attr("width", width)
+      .duration(1000)
       .attr("fill", d3.interpolateBlues(0.5))
       .attr("stroke", "black");
 
@@ -180,8 +190,10 @@ export class TimeView {
       .join("text")
       .attr("class", "bar-label")
       .attr("text-anchor", "middle")
+      .transition()
       .attr("x", (d) => x(d) + width(d) / 2)
       .attr("y", (d) => y(d) - 5)
+      .duration(1000)
       .text((d) => (d.length == 0 ? "" : d.length.toString()));
   }
 }
