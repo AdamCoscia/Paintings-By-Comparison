@@ -14,15 +14,22 @@ body {
   font-size: 1.4vw;
 }
 
-.random {
+.random,
+.filterBy-reset {
   font-family: "Source Sans Pro", serif;
   font-weight: bold;
   font-size: 11pt;
   font-size: 1.3vw;
 }
 
+.random:hover,
+.random:focus,
+.filterBy-reset:hover,
+.filterBy-reset:focus,
 .toggle-buttons:hover > rect,
-.toggle-buttons:focus > rect {
+.toggle-buttons:focus > rect,
+.title:hover,
+.title:focus {
   fill: steelblue;
   cursor: pointer;
 }
@@ -34,24 +41,13 @@ body {
   font-size: 1vw;
 }
 
-.random:hover,
-.random:focus {
-  fill: steelblue;
-  cursor: pointer;
-}
-
 .title,
-.loading {
+.loading,
+.filterBy-title {
   font-family: "Playfair Display", serif;
   font-weight: bold;
   font-size: 12pt;
   font-size: 1.3vw;
-}
-
-.title:hover,
-.title:focus {
-  fill: steelblue;
-  cursor: pointer;
 }
 
 .artist-title,
@@ -71,6 +67,7 @@ body {
 .genre-info,
 .material-info,
 .legend-text,
+.filterBy-text,
 .depicts-tooltip,
 .map-tooltip {
   font-family: "Source Sans Pro", serif;

@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { HEIGHT, WIDTH, scheme26 } from "../models/constants";
-import { arraysEqual, aggregateWords } from "../models/util";
+import { arraysEqual, aggregateWords, wrap } from "../models/util";
 
 class Switcher {
   constructor(clusterView, initAttr, attrMap) {
@@ -88,6 +88,10 @@ export class ClusterView {
       .attr("display", "block")
       .attr("transform", `translate(${WIDTH / 4}, 0)`);
     this.navG = this.clusterG.append("g").classed("cluster-nav", true);
+    this.filterByG = this.navG
+      .append("g")
+      .classed("cluster-filterBy", true)
+      .attr("transform", `translate(0, ${(1.4 * this.viewHeight) / 16})`);
     this.bubblesG = this.clusterG
       .append("g")
       .classed("bubbles", true)
@@ -123,7 +127,6 @@ export class ClusterView {
       this.groupsToFilter.delete(group);
     } else {
       // otherwise, add it to the alias map and bold text
-
       d3.select(`#${group.replace(/ /g, "")}`).style("font-weight", "bold");
       this.groupsToFilter.set(group, group);
     }
@@ -134,11 +137,29 @@ export class ClusterView {
    */
   updateFilters() {
     if (this.groupsToFilter.size == 0) {
+      // Set the filterBy title and text and filter function
+      d3.select(".filterBy-title").text("Currently filtering by (0):");
+      d3.select(".filterBy-text").text("No filters applied.");
       this.filter(null);
     } else {
+      let groups = Array.from(this.groupsToFilter.keys());
+
+      // If >25 groups, cut off the text
+      const ngroups = groups.length,
+        text =
+          ngroups > 25
+            ? `${groups.slice(0, 25).join(" | ")} ...`
+            : groups.join(" | ");
+
+      // Update filterBy title and text
+      d3.select(".filterBy-title").text(`Currently filtering by (${ngroups}):`);
+      d3.select(".filterBy-text")
+        .text(text)
+        .call(wrap, this.viewWidth / 2);
+
+      // Set the filter function
       this.filter((d) => {
         // take the intersection of groups and d[this.attrToFilter]
-        let groups = Array.from(this.groupsToFilter.keys());
         return (
           groups.filter((value) => d[this.attrToFilter].includes(value))
             .length > 0
@@ -313,30 +334,13 @@ export class ClusterView {
       .attr("opacity", 0.8);
   }
 
-  initialize(data, onGroup) {
-    this.currentData = data;
-    this.filter = onGroup;
-
-    // Create switching functionality for clustering groups
-    const switcher = new Switcher(this, "locLabel", {
-      locLabel: "Location",
-      materialLabel: "Material",
-      movement: "Movement",
-      genreLabel: "Genre",
-    });
-
-    // Create the switch buttons and initialize drawing clusters
-    switcher.render();
-    switcher.refresh();
-  }
-
   /**
-   * Takes in filtered data and filter function
+   * Sets the cluster view to starting point
    */
   reInitialize() {
     // Set new group filter map and update filter function
-    this.groupsToFilter = new Map()
-    this.updateFilters()
+    this.groupsToFilter = new Map();
+    this.updateFilters();
 
     // Map colors to all of the group keys
     const words = aggregateWords(this.currentData, this.attrToFilter),
@@ -348,6 +352,49 @@ export class ClusterView {
     const grouped = this.groupByAttr(this.currentData),
       keys = Array.from(grouped.keys());
     this.drawClusters(grouped, keys);
+  }
+
+  /**
+   * Takes in filtered data and filter function
+   */
+  initialize(data, onGroup) {
+    const self = this;
+    this.currentData = data;
+    this.filter = onGroup;
+
+    // Create switching functionality for clustering groups
+    const switcher = new Switcher(this, "locLabel", {
+      locLabel: "Location",
+      materialLabel: "Material",
+      movement: "Movement",
+      genreLabel: "Genre",
+    });
+
+    // Add filtering by title
+    const titleNode = this.filterByG
+      .append("text")
+      .attr("class", "filterBy-title")
+      .attr("transform", `translate(10, 0)`)
+      .text("Currently filtering by (0):");
+
+    // Add reset text that re-initializes view when clicked
+    this.filterByG
+      .append("text")
+      .attr("class", "filterBy-reset")
+      .attr("transform", `translate(${this.viewWidth / 2}, 0)`)
+      .attr("text-anchor", "end")
+      .text("Reset")
+      .on("click", () => self.reInitialize());
+
+    // Add filter groups list text (but leave it empty)
+    this.filterByG
+      .append("text")
+      .attr("class", "filterBy-text")
+      .attr("transform", `translate(10, ${titleNode.node().getBBox().height})`);
+
+    // Create the switch buttons and initialize drawing clusters
+    switcher.render();
+    switcher.refresh();
   }
 
   /**
