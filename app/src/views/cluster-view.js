@@ -15,7 +15,7 @@ export class ClusterView {
     this.viewWidth = WIDTH / 2;
     this.viewHeight = HEIGHT;
     this.filter = null; // filter function
-    this.attrToFilter = "materialLabel"; // attribute to filter on
+    this.attrToFilter = "locLabel"; // attribute to filter on
     this.groupsToFilter = new Map(); // alias map for attributes to filter
     this.colorGroup = {}; // color mapping for groups
     this.otherKeys = []; // keys contained in "other" group

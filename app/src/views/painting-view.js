@@ -223,14 +223,31 @@ export class PaintingView {
     const arrowWidth = self.viewHeight / 16;
     const arrowHeight = self.viewHeight / 16;
 
-    // add painting counter text in the middle of the group
-    const shift = [self.viewWidth / 2, self.viewHeight / 16];
+    // add painting counter text above the random button
+    let shift = [self.viewWidth / 2, self.viewHeight / 32];
     this.arrowG
       .append("text")
       .attr("class", "counter")
       .attr("transform", `translate(${shift[0]}, ${shift[1]})`)
       .attr("text-anchor", "middle")
       .text(`${self.paintingNumber + 1} / ${self.npaintings}`);
+
+    // add random button below the counter text
+    shift = [self.viewWidth / 2, arrowHeight * 1.25];
+    this.arrowG
+      .append("text")
+      .attr("class", "random")
+      .attr("transform", `translate(${shift[0]}, ${shift[1]})`)
+      .attr("text-anchor", "middle")
+      .text("Random")
+      .on("click", () => {
+        if (self.displayG.style("display") !== "none") {
+          self.paintingNumber = Math.floor(
+            Math.random() * Math.floor(self.npaintings)
+          );
+          self.loadPainting();
+        }
+      });
 
     // add SVG left arrow as clickable image to the page
     // Add a rectangle behind the arrow that appears when you hover on the painting

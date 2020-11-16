@@ -11,7 +11,20 @@ body {
 .counter {
   font-family: "Roboto", serif;
   font-size: 11pt;
-  font-size: 1.5vw;
+  font-size: 1.4vw;
+}
+
+.random {
+  font-family: "Source Sans Pro", serif;
+  font-weight: bold;
+  font-size: 11pt;
+  font-size: 1.3vw;
+}
+
+.random:hover,
+.random:focus {
+  fill: steelblue;
+  cursor: pointer;
 }
 
 .title,
