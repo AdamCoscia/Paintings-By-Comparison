@@ -3,10 +3,13 @@ import { HEIGHT, WIDTH, scheme26 } from "../models/constants";
 import { arraysEqual, aggregateWords } from "../models/util";
 
 class Switcher {
-  constructor(clusterView, initAttr, listOfAttrs) {
+  constructor(clusterView, initAttr, attrMap) {
     this.clusterView = clusterView;
     this.activeAttr = initAttr;
-    this.listOfAttrs = listOfAttrs;
+    this.attrMap = attrMap;
+    this.toggleButtonG = clusterView.navG
+      .append("g")
+      .classed("cluster-nav-buttons", true);
   }
 
   setActiveAttr(attr) {
@@ -16,51 +19,50 @@ class Switcher {
 
   refresh() {
     this.clusterView.attrToFilter = this.activeAttr;
-    this.clusterView.actualInitialize(
-      this.clusterView.allData,
-      this.clusterView.onGroup
-    );
+    this.clusterView.reInitialize();
   }
 
-  render(navG) {
+  render() {
+    const self = this;
+    const BUTTON_WIDTH = self.clusterView.viewWidth / 8 - 10;
+    const BUTTON_HEIGHT = self.clusterView.viewHeight / 16 - 10;
+    const buttonRectX = (_, i) => i * BUTTON_WIDTH + (i + 1) * 10;
 
-    
-    const self = this
-
-    const BUTTON_WIDTH = 125
-
-    const buttonRectX = (d, i) => (i * BUTTON_WIDTH) + (i + 1) * 10
-
-    const buttonG = navG
-      .append("g")
-      .classed("cluster-nav-buttons", true)
+    const toggleButtons = this.toggleButtonG
       .selectAll(".toggle-buttons")
-      .data(this.listOfAttrs)
+      .data(Object.keys(this.attrMap))
       .join("g")
       .classed("toggle-buttons", true)
-      .attr('transform', (d, i) => `translate(${buttonRectX(d, i)}, 0)`)
-      .on('click', function(e, d) {
-        console.log(d)
-        self.setActiveAttr(d)      
-      })
-      .attr('cursor', 'pointer')
+      .attr("id", (d) => `${self.attrMap[d]}_button`)
+      .attr("transform", (_, i) => `translate(${buttonRectX(_, i)}, 0)`)
+      .on("click", function (_, d) {
+        if (self.activeAttr !== d) {
+          // only update if the incoming click is not the active attr filter
+          d3.select(this).select("rect").attr("fill", "steelblue");
+          d3.select(`#${self.attrMap[self.activeAttr]}_button`)
+            .select("rect")
+            .attr("fill", "#ccc");
+          self.setActiveAttr(d);
+        }
+      });
 
-    buttonG
-      .append('rect')
-      .attr('height', 40)
-      .attr('width', BUTTON_WIDTH)
-      .attr('fill', 'black')
+    toggleButtons
+      .append("rect")
+      .attr("width", BUTTON_WIDTH)
+      .attr("height", BUTTON_HEIGHT)
+      .attr("fill", (d) => (self.activeAttr === d ? "steelblue" : "#ccc"))
+      .attr("rx", 10);
 
-    buttonG
-      .append('text')
-      .text((d) => d)
-      .attr('y', 40 / 2 + 5)
-      .attr('x', BUTTON_WIDTH / 2)
-      .attr('text-anchor', 'middle')
-      .attr('font-weight', 'bold')
-      .attr('fill', 'white')
-
-  };
+    toggleButtons
+      .append("text")
+      .attr("class", "button-text")
+      .attr("y", 1.25 * (BUTTON_HEIGHT / 2))
+      .attr("x", BUTTON_WIDTH / 2)
+      .attr("text-anchor", "middle")
+      .attr("font-weight", "bold")
+      .attr("fill", "white")
+      .text((d) => self.attrMap[d]);
+  }
 }
 
 /**
@@ -71,7 +73,6 @@ export class ClusterView {
    * Takes in SVG object and data object
    */
   constructor(svg, allData) {
-    this.allData = allData;
     this.currentData = allData;
     this.npaintings = allData.length;
     this.viewWidth = WIDTH / 2;
@@ -99,20 +100,31 @@ export class ClusterView {
   toggle(group, other) {
     if (other) {
       // We are toggling the "other" group
-      if (this.groupsToFilter.get("other") === undefined) {
-        // "other" not in groupsToFilter, add it
-        this.groupsToFilter.set("other", this.otherKeys);
-        this.otherKeys.forEach((key) => this.groupsToFilter.set(key, key));
+      if (this.groupsToFilter.get("others") === undefined) {
+        // "other" not in groupsToFilter, add it and bold legend
+        this.groupsToFilter.set("others", this.otherKeys);
+        d3.select(`#others`).style("font-weight", "bold");
+        this.otherKeys.forEach((key) => {
+          d3.select(`#${key.replace(/ /g, "")}`).style("font-weight", "bold");
+          this.groupsToFilter.set(key, key);
+        });
       } else {
-        // "other" already in groupsToFilter, so delete it
-        this.groupsToFilter.delete("other");
-        this.otherKeys.forEach((key) => this.groupsToFilter.delete(key));
+        // "other" already in groupsToFilter, so delete it and unbold text
+        this.groupsToFilter.delete("others");
+        d3.select(`#others`).style("font-weight", "normal");
+        this.otherKeys.forEach((key) => {
+          d3.select(`#${key.replace(/ /g, "")}`).style("font-weight", "normal");
+          this.groupsToFilter.delete(key);
+        });
       }
     } else if (this.groupsToFilter.has(group)) {
-      // group exists in alias map so delete it
+      // group exists in alias map so delete it and unbold text
+      d3.select(`#${group.replace(/ /g, "")}`).style("font-weight", "normal");
       this.groupsToFilter.delete(group);
     } else {
-      // otherwise, add it to the alias map
+      // otherwise, add it to the alias map and bold text
+
+      d3.select(`#${group.replace(/ /g, "")}`).style("font-weight", "bold");
       this.groupsToFilter.set(group, group);
     }
   }
@@ -202,12 +214,10 @@ export class ClusterView {
       root = pack();
 
     // Create legend function
-    let legend = (svg) => {
-      const g = svg
+    let legend = (container) => {
+      const g = container
         .attr("transform", `translate(${this.viewWidth},0)`)
         .attr("text-anchor", "end")
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
         .selectAll("g")
         .data(
           // sort legend by size of group!
@@ -216,7 +226,11 @@ export class ClusterView {
           })
         )
         .join("g")
-        .attr("transform", (_, i) => `translate(0,${i * step + 2})`);
+        .attr("id", (d) => d.replace(/ /g, ""))
+        .attr("transform", (_, i) => `translate(0,${i * step + 2})`)
+        .style("font-weight", (d) => {
+          return self.groupsToFilter.get(d) !== undefined ? "bold" : "normal";
+        });
       g.append("rect")
         .attr("x", -15) // constant x
         .attr("width", 15) // constant width
@@ -230,7 +244,7 @@ export class ClusterView {
         .text((d) => `${d} (${grouped.get(d).length})`);
     };
 
-    // clear navigation and draw legend
+    // re-draw legend
     this.navG
       .selectAll(".cluster-legend")
       .transition()
@@ -259,7 +273,7 @@ export class ClusterView {
         const leaf = d.leaves()[0].data,
           other = leaf.other;
         let group = leaf.group;
-        if (other) group = "other"; // color entire "group" bubble
+        if (other) group = "others"; // color entire "group" bubble
         return self.groupsToFilter.get(group) !== undefined ? "#ccc" : "white";
       })
       .on("click", function (_, d) {
@@ -269,7 +283,7 @@ export class ClusterView {
         // toggle the group
         self.toggle(group, other);
         // if switched on, darken the inside, otherwise lighten it again
-        if (other) group = "other";
+        if (other) group = "others";
         d3.select(this).attr("fill", () =>
           self.groupsToFilter.get(group) !== undefined ? "#ccc" : "white"
         );
@@ -300,35 +314,38 @@ export class ClusterView {
   }
 
   initialize(data, onGroup) {
-    this.onGroup = onGroup;
+    this.currentData = data;
+    this.filter = onGroup;
 
-    const switcher = new Switcher(this, "locLabel", [
-      "locLabel",
-      "materialLabel",
-      "movement",
-      "genreLabel",
-    ]);
+    // Create switching functionality for clustering groups
+    const switcher = new Switcher(this, "locLabel", {
+      locLabel: "Location",
+      materialLabel: "Material",
+      movement: "Movement",
+      genreLabel: "Genre",
+    });
 
-    switcher.render(this.navG);
-    switcher.refresh()
+    // Create the switch buttons and initialize drawing clusters
+    switcher.render();
+    switcher.refresh();
   }
 
   /**
    * Takes in filtered data and filter function
    */
-  actualInitialize(data, onGroup) {
-    this.filter = onGroup;
+  reInitialize() {
+    // Set new group filter map and update filter function
+    this.groupsToFilter = new Map()
+    this.updateFilters()
 
     // Map colors to all of the group keys
-    const words = aggregateWords(data, this.attrToFilter),
+    const words = aggregateWords(this.currentData, this.attrToFilter),
       getColor = d3.scaleOrdinal(scheme26);
     words.forEach((d) => (this.colorGroup[d.word] = getColor(d.word)));
     this.colorGroup["others"] = "#ccc";
 
-    console.log(words);
-
     // draw clusters
-    const grouped = this.groupByAttr(data),
+    const grouped = this.groupByAttr(this.currentData),
       keys = Array.from(grouped.keys());
     this.drawClusters(grouped, keys);
   }

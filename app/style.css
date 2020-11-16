@@ -21,6 +21,19 @@ body {
   font-size: 1.3vw;
 }
 
+.toggle-buttons:hover > rect,
+.toggle-buttons:focus > rect {
+  fill: steelblue;
+  cursor: pointer;
+}
+
+.button-text {
+  cursor: pointer;
+  font-family: "Source Sans Pro", serif;
+  font-size: 10pt;
+  font-size: 1vw;
+}
+
 .random:hover,
 .random:focus {
   fill: steelblue;
