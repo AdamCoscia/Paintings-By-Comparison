@@ -2,6 +2,67 @@ import * as d3 from "d3";
 import { HEIGHT, WIDTH, scheme26 } from "../models/constants";
 import { arraysEqual, aggregateWords } from "../models/util";
 
+class Switcher {
+  constructor(clusterView, initAttr, listOfAttrs) {
+    this.clusterView = clusterView;
+    this.activeAttr = initAttr;
+    this.listOfAttrs = listOfAttrs;
+  }
+
+  setActiveAttr(attr) {
+    this.activeAttr = attr;
+    this.refresh();
+  }
+
+  refresh() {
+    this.clusterView.attrToFilter = this.activeAttr;
+    this.clusterView.actualInitialize(
+      this.clusterView.allData,
+      this.clusterView.onGroup
+    );
+  }
+
+  render(navG) {
+
+    
+    const self = this
+
+    const BUTTON_WIDTH = 125
+
+    const buttonRectX = (d, i) => (i * BUTTON_WIDTH) + (i + 1) * 10
+
+    const buttonG = navG
+      .append("g")
+      .classed("cluster-nav-buttons", true)
+      .selectAll(".toggle-buttons")
+      .data(this.listOfAttrs)
+      .join("g")
+      .classed("toggle-buttons", true)
+      .attr('transform', (d, i) => `translate(${buttonRectX(d, i)}, 0)`)
+      .on('click', function(e, d) {
+        console.log(d)
+        self.setActiveAttr(d)      
+      })
+      .attr('cursor', 'pointer')
+
+    buttonG
+      .append('rect')
+      .attr('height', 40)
+      .attr('width', BUTTON_WIDTH)
+      .attr('fill', 'black')
+
+    buttonG
+      .append('text')
+      .text((d) => d)
+      .attr('y', 40 / 2 + 5)
+      .attr('x', BUTTON_WIDTH / 2)
+      .attr('text-anchor', 'middle')
+      .attr('font-weight', 'bold')
+      .attr('fill', 'white')
+
+  };
+}
+
 /**
  * ClusterView object
  */
@@ -10,6 +71,7 @@ export class ClusterView {
    * Takes in SVG object and data object
    */
   constructor(svg, allData) {
+    this.allData = allData;
     this.currentData = allData;
     this.npaintings = allData.length;
     this.viewWidth = WIDTH / 2;
@@ -170,13 +232,14 @@ export class ClusterView {
 
     // clear navigation and draw legend
     this.navG
-      .selectAll("*")
+      .selectAll(".cluster-legend")
       .transition()
       .style("opacity", 0)
       .duration(50)
       .remove();
     this.navG
       .append("g")
+      .classed("cluster-legend", true)
       .call(legend)
       .transition()
       .style("opacity", 1)
@@ -236,10 +299,24 @@ export class ClusterView {
       .attr("opacity", 0.8);
   }
 
+  initialize(data, onGroup) {
+    this.onGroup = onGroup;
+
+    const switcher = new Switcher(this, "locLabel", [
+      "locLabel",
+      "materialLabel",
+      "movement",
+      "genreLabel",
+    ]);
+
+    switcher.render(this.navG);
+    switcher.refresh()
+  }
+
   /**
    * Takes in filtered data and filter function
    */
-  initialize(data, onGroup) {
+  actualInitialize(data, onGroup) {
     this.filter = onGroup;
 
     // Map colors to all of the group keys
