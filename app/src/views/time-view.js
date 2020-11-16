@@ -180,7 +180,7 @@ export class TimeView {
       .attr("y", y)
       .attr("height", binHeight)
       .attr("width", width)
-      .duration(1000)
+      .duration(600)
       .attr("fill", d3.interpolateBlues(0.5))
       .attr("stroke", "black");
 
@@ -193,7 +193,7 @@ export class TimeView {
       .transition()
       .attr("x", (d) => x(d) + width(d) / 2)
       .attr("y", (d) => y(d) - 5)
-      .duration(1000)
+      .duration(600)
       .text((d) => (d.length == 0 ? "" : d.length.toString()));
   }
 }
