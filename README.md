@@ -1,6 +1,6 @@
 # Paintings by Comparison
 
-[Include logo/demo screenshot etc.]
+![demo-image](demo-image.PNG)
 
 You think you've seen paintings? Well you've never seen them like this before! We present "Paintings by Comparison".
 
