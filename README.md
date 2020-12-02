@@ -46,11 +46,9 @@ First, clone this repo to your local machine, then move ahead.
 
 ## Acknowledgement
 
-Designed for:
+Designed for CS 7450 Information Visualization, Georgia Institute of Technology, Prof Alex Endert, Fall 2020.
 
-> CS 7450 Information Visualization, Georgia Institute of Technology, Prof Alex Endert, Fall 2020
-
-Developed by [Adam Coscia](mailto:acoscia6@gatech.edu)([Personal Site](https://adamcoscia.github.io)) and Vijay Marupudi
+Developed by Adam Coscia ([acoscia6@gatech.edu](mailto:acoscia6@gatech.edu)) and Vijay Marupudi.
 
 Thank you to Rojin Aliehyaei and Akshay Karthik for their help!
 
