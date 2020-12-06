@@ -6,11 +6,9 @@ You think you've seen paintings? Well you've never seen them like this before! W
 
 **Try a live demo here:** <https://adamcoscia.github.io/sections/projects/PaintByComp/index.html>
 
-## How to Use
+Video coming soon...
 
-Coming soon!
-
-## Installation
+## Making Edits
 
 _Relax, it won't take that much time to install :)_
 
