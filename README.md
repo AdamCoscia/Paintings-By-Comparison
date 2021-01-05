@@ -6,7 +6,7 @@ You think you've seen paintings? Well you've never seen them like this before! W
 
 **Try a live demo here:** <https://adamcoscia.github.io/sections/projects/PaintByComp/index.html>
 
-Video coming soon...
+**Watch our presentation here:** <https://www.youtube.com/watch?v=6aTiNRW_now>
 
 ## Making Edits
 
