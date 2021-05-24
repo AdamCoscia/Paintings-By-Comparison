@@ -4,7 +4,7 @@
 
 You think you've seen paintings? Well you've never seen them like this before! We present "Paintings by Comparison".
 
-**Try a live demo here:** <https://adamcoscia.github.io/sections/projects/PaintByComp/index.html>
+**Try a live demo here:** <https://adamcoscia.github.io/sections/projects/Paintings-By-Comparison/index.html>
 
 **Watch our presentation here:** <https://www.youtube.com/watch?v=6aTiNRW_now>
 
