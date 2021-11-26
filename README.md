@@ -4,9 +4,11 @@
 
 You think you've seen paintings? Well you've never seen them like this before! We present "Paintings by Comparison".
 
-**Try a live demo here:** <https://adamcoscia.github.io/sections/projects/Paintings-By-Comparison/index.html>
+## Live Demo and Presentation
 
-**Watch our presentation here:** <https://www.youtube.com/watch?v=6aTiNRW_now>
+Demo: <https://adamcoscia.github.io/sections/projects/Paintings-By-Comparison/index.html>
+
+Presentation: <https://www.youtube.com/watch?v=6aTiNRW_now>
 
 ## Making Edits
 
@@ -44,11 +46,20 @@ First, clone this repo to your local machine, then move ahead.
    - Once your local server is running go to your browser at <https:localhost:3000>
 4. When you want to close the server, press `COMMAND/CTRL+C` in the terminal/command window
 
-## Acknowledgement
+## Credits
 
-Designed for CS 7450 Information Visualization, Georgia Institute of Technology, Prof Alex Endert, Fall 2020.
+CS 7450 Information Visualization
 
-Developed by Adam Coscia ([acoscia6@gatech.edu](mailto:acoscia6@gatech.edu)) and Vijay Marupudi.
+Georgia Institute of Technology
+
+Dr. Alex Endert
+
+Fall 2020
+
+### Team
+
+- Adam Coscia ([acoscia6@gatech.edu](mailto:acoscia6@gatech.edu))
+- Vijay Marupudi
 
 Thank you to Rojin Aliehyaei and Akshay Karthik for their help!
 
