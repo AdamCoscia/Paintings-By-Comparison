@@ -4,11 +4,11 @@
 
 You think you've seen paintings? Well you've never seen them like this before! We present "Paintings by Comparison".
 
-## Live Demo and Presentation
+## Live Demo and Video
 
 Live Demo: <https://adamcoscia.com/projects/Paintings-By-Comparison/>
 
-Presentation: <https://www.youtube.com/watch?v=6aTiNRW_now>
+Video: <https://youtu.be/6aTiNRW_now>
 
 ## Making Edits
 
