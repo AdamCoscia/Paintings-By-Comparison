@@ -6,7 +6,7 @@ You think you've seen paintings? Well you've never seen them like this before! W
 
 ## Live Demo and Presentation
 
-Demo: <https://adamcoscia.github.io/sections/projects/Paintings-By-Comparison/index.html>
+Live Demo: <https://adamcoscia.com/projects/Paintings-By-Comparison/>
 
 Presentation: <https://www.youtube.com/watch?v=6aTiNRW_now>
 
